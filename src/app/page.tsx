@@ -33,7 +33,7 @@ export default function Home() {
             />
           </Link>
 
-          <HomeList excludeSlug={featured.slug} />
+          <HomeList />
         </div>
       </main>
 

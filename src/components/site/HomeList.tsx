@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Search, Siren, KeyRound, Server, CreditCard, Link2, type LucideIcon } from "lucide-react";
+import { Search, Siren, KeyRound, Server, CreditCard, Link2, ChevronLeft, ChevronRight, type LucideIcon } from "lucide-react";
 import { notes, categoryLabel, type NoteCategory, type NoteMeta } from "@/lib/notes";
 
 const categories = ["전체", ...Object.keys(categoryLabel)] as const;
@@ -52,21 +52,30 @@ export function NoteRow({ note }: { note: NoteMeta }) {
   );
 }
 
-export default function HomeList({ excludeSlug }: { excludeSlug?: string }) {
+const PAGE_SIZE = 5;
+
+export default function HomeList() {
   const [category, setCategory] = useState<string>("전체");
   const [query, setQuery] = useState("");
+  const [page, setPage] = useState(1);
 
   const q = query.trim().toLowerCase();
   const filtered = notes.filter((note) => {
-    if (note.slug === excludeSlug && category === "전체" && !q) return false;
     if (category !== "전체" && note.category !== category) return false;
     if (q && !`${note.title} ${note.description}`.toLowerCase().includes(q)) return false;
     return true;
   });
 
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  const safePage = Math.min(page, totalPages);
+  const paged = filtered.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE);
+
   return (
     <section className="pb-8">
-      <h2 className="mb-6 text-2xl font-bold tracking-tight md:text-3xl">전체 아티클</h2>
+      <div className="mb-6 flex items-baseline gap-3">
+        <h2 className="text-2xl font-bold tracking-tight md:text-3xl">전체 아티클</h2>
+        <span className="text-sm font-semibold text-muted-foreground">총 {filtered.length}편</span>
+      </div>
 
       {/* Search */}
       <div className="relative mb-5">
@@ -74,7 +83,10 @@ export default function HomeList({ excludeSlug }: { excludeSlug?: string }) {
         <input
           type="search"
           value={query}
-          onChange={(e) => setQuery(e.target.value)}
+          onChange={(e) => {
+            setQuery(e.target.value);
+            setPage(1);
+          }}
           placeholder="궁금한 글을 검색해 보세요"
           className="w-full rounded-full bg-secondary py-3 pl-11 pr-5 text-[15px] text-foreground placeholder:text-muted-foreground focus:outline-2 focus:outline-offset-2 focus:outline-ring"
         />
@@ -86,7 +98,10 @@ export default function HomeList({ excludeSlug }: { excludeSlug?: string }) {
           <button
             key={c}
             type="button"
-            onClick={() => setCategory(c)}
+            onClick={() => {
+              setCategory(c);
+              setPage(1);
+            }}
             className={`rounded-full px-4 py-2 text-sm font-semibold transition-colors ${
               category === c
                 ? "bg-accent text-accent-foreground"
@@ -99,7 +114,7 @@ export default function HomeList({ excludeSlug }: { excludeSlug?: string }) {
       </div>
 
       <ul className="-mx-4 flex flex-col gap-1">
-        {filtered.map((note) => (
+        {paged.map((note) => (
           <li key={note.slug}>
             <NoteRow note={note} />
           </li>
@@ -110,6 +125,45 @@ export default function HomeList({ excludeSlug }: { excludeSlug?: string }) {
           </li>
         )}
       </ul>
+
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <nav aria-label="페이지" className="mt-8 flex items-center justify-center gap-1.5">
+          <button
+            type="button"
+            aria-label="이전 페이지"
+            disabled={safePage === 1}
+            onClick={() => setPage(safePage - 1)}
+            className="flex h-9 w-9 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-secondary disabled:opacity-30 disabled:hover:bg-transparent"
+          >
+            <ChevronLeft size={17} />
+          </button>
+          {Array.from({ length: totalPages }, (_, i) => i + 1).map((n) => (
+            <button
+              key={n}
+              type="button"
+              aria-current={n === safePage ? "page" : undefined}
+              onClick={() => setPage(n)}
+              className={`h-9 w-9 rounded-full text-sm font-semibold transition-colors ${
+                n === safePage
+                  ? "bg-accent text-accent-foreground"
+                  : "text-muted-foreground hover:bg-secondary"
+              }`}
+            >
+              {n}
+            </button>
+          ))}
+          <button
+            type="button"
+            aria-label="다음 페이지"
+            disabled={safePage === totalPages}
+            onClick={() => setPage(safePage + 1)}
+            className="flex h-9 w-9 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-secondary disabled:opacity-30 disabled:hover:bg-transparent"
+          >
+            <ChevronRight size={17} />
+          </button>
+        </nav>
+      )}
     </section>
   );
 }
