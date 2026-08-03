@@ -17,8 +17,8 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: "Field Notes — 윤효연",
-    template: "%s — Field Notes",
+    default: "YHyoyeon Blog — 윤효연의 기술 블로그",
+    template: "%s — YHyoyeon Blog",
   },
   description:
     "장애 회고, 인증 설계, 온체인·오프체인 동기화, 결제 연동 — 실무에서 해결한 기술 문제들의 기록.",

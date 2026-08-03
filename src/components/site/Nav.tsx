@@ -6,7 +6,7 @@ export default function Nav() {
     <header className="sticky top-0 z-30 bg-background/90 backdrop-blur-md">
       <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-4 md:px-8">
         <Link href="/" className="text-xl font-extrabold tracking-tight">
-          Field<span className="text-accent"> Notes</span>
+          YHyoyeon<span className="text-accent"> Blog</span>
         </Link>
 
         <nav className="flex items-center gap-2">
