@@ -1,4 +1,4 @@
-import { notes, SITE_URL } from "@/lib/notes";
+import { notes, noteTitle, noteDesc, SITE_URL } from "@/lib/notes";
 
 const esc = (s: string) =>
   s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
@@ -7,10 +7,10 @@ export function GET() {
   const items = notes
     .map(
       (n) => `    <item>
-      <title>${esc(n.title)}</title>
+      <title>${esc(noteTitle(n, "ko"))}</title>
       <link>${SITE_URL}/notes/${n.slug}</link>
       <guid>${SITE_URL}/notes/${n.slug}</guid>
-      <description>${esc(n.description)}</description>
+      <description>${esc(noteDesc(n, "ko"))}</description>
     </item>`,
     )
     .join("\n");

@@ -1,8 +1,10 @@
 import Link from "next/link";
 import { ArrowLeft, ArrowRight } from "lucide-react";
-import { notes, categoryLabel } from "@/lib/notes";
+import { notes, noteTitle } from "@/lib/notes";
+import { dict, notePath, catLabel, type Lang } from "@/lib/i18n";
 
-export default function NoteNav({ slug }: { slug: string }) {
+export default function NoteNav({ slug, lang = "ko" }: { slug: string; lang?: Lang }) {
+  const t = dict[lang];
   const i = notes.findIndex((n) => n.slug === slug);
   if (i === -1) return null;
 
@@ -19,14 +21,14 @@ export default function NoteNav({ slug }: { slug: string }) {
       <div className="grid gap-3 border-t border-border pt-8 sm:grid-cols-2">
         {prev ? (
           <Link
-            href={`/notes/${prev.slug}`}
+            href={notePath(lang, prev.slug)}
             className="group rounded-lg border border-border p-4 transition-colors hover:border-accent/40"
           >
             <span className="ledger-label flex items-center gap-1">
-              <ArrowLeft size={12} /> 이전 글
+              <ArrowLeft size={12} /> {t.prev}
             </span>
             <p className="mt-2 text-sm font-medium leading-snug transition-colors group-hover:text-accent break-keep">
-              {prev.title}
+              {noteTitle(prev, lang)}
             </p>
           </Link>
         ) : (
@@ -34,14 +36,14 @@ export default function NoteNav({ slug }: { slug: string }) {
         )}
         {next && (
           <Link
-            href={`/notes/${next.slug}`}
+            href={notePath(lang, next.slug)}
             className="group rounded-lg border border-border p-4 text-right transition-colors hover:border-accent/40"
           >
             <span className="ledger-label flex items-center justify-end gap-1">
-              다음 글 <ArrowRight size={12} />
+              {t.next} <ArrowRight size={12} />
             </span>
             <p className="mt-2 text-sm font-medium leading-snug transition-colors group-hover:text-accent break-keep">
-              {next.title}
+              {noteTitle(next, lang)}
             </p>
           </Link>
         )}
@@ -50,16 +52,16 @@ export default function NoteNav({ slug }: { slug: string }) {
       {/* related */}
       {related.length > 0 && (
         <div className="mt-10">
-          <p className="section-title">Related — {categoryLabel[current.category]} 카테고리의 다른 글</p>
+          <p className="section-title">{t.relatedIn(catLabel(lang, current.category))}</p>
           <ul className="divide-y divide-border border-y border-border">
             {related.map((n) => (
               <li key={n.slug}>
                 <Link
-                  href={`/notes/${n.slug}`}
+                  href={notePath(lang, n.slug)}
                   className="group flex items-center justify-between gap-4 py-3.5"
                 >
                   <span className="text-sm font-medium transition-colors group-hover:text-accent break-keep">
-                    {n.title}
+                    {noteTitle(n, lang)}
                   </span>
                   <ArrowRight size={14} className="shrink-0 text-muted-foreground/50 transition-colors group-hover:text-accent" />
                 </Link>

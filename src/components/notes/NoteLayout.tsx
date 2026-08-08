@@ -1,14 +1,23 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
 import type { LucideIcon } from "lucide-react";
+import { dict, homePath, type Lang } from "@/lib/i18n";
 
-export const NoteHeader = ({ title, intro }: { title: string; intro: string }) => (
+export const NoteHeader = ({
+  title,
+  intro,
+  lang = "ko",
+}: {
+  title: string;
+  intro: string;
+  lang?: Lang;
+}) => (
   <>
     <Link
-      href="/"
+      href={homePath[lang]}
       className="font-mono text-[13px] text-muted-foreground hover:text-accent transition-colors"
     >
-      ← 목록
+      {dict[lang].back}
     </Link>
 
     <h1 className="mt-6 text-3xl md:text-4xl font-bold tracking-tight">{title}</h1>
