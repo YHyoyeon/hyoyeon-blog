@@ -1,13 +1,13 @@
 import Nav from "@/components/site/Nav";
 import Footer from "@/components/site/Footer";
 import NoteNav from "@/components/notes/NoteNav";
-import ViewCounter from "@/components/notes/ViewCounter";
+import ViewCounter from "@/components/site/ViewCounter";
 import Giscus from "@/components/site/Giscus";
 import MermaidDiagram from "@/components/notes/MermaidDiagram";
 import { NoteHeader, NoteSection, KeyPointList, StepList, IconList } from "@/components/notes/NoteLayout";
 import { noteContent } from "@/content/notes";
 import { notes, noteTitle, noteDesc } from "@/lib/notes";
-import { notePath, otherLang, type Lang } from "@/lib/i18n";
+import { notePath, otherLang, formatDate, type Lang } from "@/lib/i18n";
 import { noteJsonLd } from "@/lib/seo";
 import type { Block as BlockData } from "@/lib/note-content";
 
@@ -64,7 +64,8 @@ export default function NotePage({ slug, lang }: { slug: string; lang: Lang }) {
       <main className="flex-1">
         <div className="mx-auto max-w-3xl px-6 md:px-8 py-16 md:py-24">
           <NoteHeader lang={lang} title={noteTitle(note, lang)} intro={body.intro} />
-          <div className="mt-4">
+          <div className="mt-4 flex items-center gap-3 font-mono text-[13px] text-muted-foreground">
+            <time dateTime={note.date}>{formatDate(note.date, lang)}</time>
             <ViewCounter slug={slug} lang={lang} />
           </div>
 

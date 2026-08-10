@@ -14,9 +14,10 @@ export default function Nav({ lang = "ko", altHref }: { lang?: Lang; altHref?: s
         </Link>
 
         <nav className="flex items-center gap-2">
+          {/* 방명록은 다른 링크와 같은 회색이면 묻힌다. accent 톤으로 눈에 띄게 둔다. */}
           <Link
             href={guestbookPath[lang]}
-            className="rounded-full px-2.5 py-2 text-sm font-semibold text-muted-foreground transition-colors hover:text-foreground"
+            className="rounded-full bg-accent/10 px-3.5 py-2 text-sm font-semibold text-accent transition-colors hover:bg-accent/20"
           >
             {t.guestbook}
           </Link>
@@ -33,7 +34,7 @@ export default function Nav({ lang = "ko", altHref }: { lang?: Lang; altHref?: s
           >
             {t.portfolio}
           </a>
-          <ThemeToggle />
+          <ThemeToggle lang={lang} />
         </nav>
       </div>
     </header>

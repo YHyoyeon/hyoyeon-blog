@@ -4,7 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { Search, Siren, KeyRound, Server, CreditCard, Link2, ChevronLeft, ChevronRight, type LucideIcon } from "lucide-react";
 import { notes, noteTitle, noteDesc, type NoteCategory, type NoteMeta } from "@/lib/notes";
-import { dict, catLabel, notePath, type Lang } from "@/lib/i18n";
+import { dict, catLabel, notePath, formatDate, type Lang } from "@/lib/i18n";
 
 const categoryKeys: NoteCategory[] = ["Incident", "Auth", "Infra", "Payments", "Chain"];
 
@@ -40,7 +40,12 @@ export function NoteRow({ note, lang }: { note: NoteMeta; lang: Lang }) {
       className="group flex items-center gap-6 rounded-2xl p-4 transition-colors hover:bg-secondary/70 md:gap-8"
     >
       <div className="min-w-0 flex-1">
-        <CategoryChip category={note.category} lang={lang} />
+        <div className="flex items-center gap-2.5">
+          <CategoryChip category={note.category} lang={lang} />
+          <time dateTime={note.date} className="font-mono text-xs text-muted-foreground">
+            {formatDate(note.date, lang)}
+          </time>
+        </div>
         <h2 className="mt-2.5 text-lg font-bold leading-snug transition-colors group-hover:text-accent md:text-xl break-keep">
           {noteTitle(note, lang)}
         </h2>

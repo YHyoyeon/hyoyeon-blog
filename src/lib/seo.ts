@@ -52,43 +52,57 @@ export function rootMetadata(lang: Lang): Metadata {
   };
 }
 
+/**
+ * ko/en 경로 한 쌍에서 canonical·hreflang·OpenGraph를 만든다.
+ * 홈·방명록·글이 전부 같은 모양이라 한 곳에 모아 두면 서로 어긋날 일이 없다.
+ */
+function pageMetadata({
+  lang,
+  koPath,
+  enPath,
+  title,
+  description,
+  type = "website",
+}: {
+  lang: Lang;
+  koPath: string;
+  enPath: string;
+  title: string;
+  description: string;
+  type?: "website" | "article";
+}): Metadata {
+  const url = lang === "ko" ? koPath : enPath;
+  return {
+    title,
+    description,
+    alternates: { canonical: url, languages: languagesFor(koPath, enPath) },
+    openGraph: { type, url, locale: ogLocale[lang], title, description },
+  };
+}
+
 export function homeMetadata(lang: Lang): Metadata {
   const m = home[lang];
   return {
-    title: { absolute: m.title },
-    description: m.description,
-    alternates: {
-      canonical: homePath[lang],
-      languages: languagesFor(homePath.ko, homePath.en),
-    },
-    openGraph: {
-      type: "website",
-      url: homePath[lang],
-      locale: ogLocale[lang],
+    ...pageMetadata({
+      lang,
+      koPath: homePath.ko,
+      enPath: homePath.en,
       title: m.title,
       description: m.description,
-    },
+    }),
+    // 홈 제목에는 "— 사이트명" 템플릿을 덧붙이지 않는다.
+    title: { absolute: m.title },
   };
 }
 
 export function guestbookMetadata(lang: Lang): Metadata {
-  const title = dict[lang].guestbook;
-  const description = dict[lang].guestbookIntro;
-  return {
-    title,
-    description,
-    alternates: {
-      canonical: guestbookPath[lang],
-      languages: languagesFor(guestbookPath.ko, guestbookPath.en),
-    },
-    openGraph: {
-      type: "website",
-      url: guestbookPath[lang],
-      locale: ogLocale[lang],
-      title,
-      description,
-    },
-  };
+  return pageMetadata({
+    lang,
+    koPath: guestbookPath.ko,
+    enPath: guestbookPath.en,
+    title: dict[lang].guestbook,
+    description: dict[lang].guestbookIntro,
+  });
 }
 
 export function noteMetadata(
@@ -97,21 +111,14 @@ export function noteMetadata(
   title: string,
   description: string,
 ): Metadata {
-  return {
+  return pageMetadata({
+    lang,
+    koPath: notePath("ko", slug),
+    enPath: notePath("en", slug),
     title,
     description,
-    alternates: {
-      canonical: notePath(lang, slug),
-      languages: languagesFor(notePath("ko", slug), notePath("en", slug)),
-    },
-    openGraph: {
-      type: "article",
-      url: notePath(lang, slug),
-      locale: ogLocale[lang],
-      title,
-      description,
-    },
-  };
+    type: "article",
+  });
 }
 
 export function homeJsonLd(lang: Lang) {

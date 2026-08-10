@@ -1,4 +1,4 @@
-import ViewCounter from "@/components/notes/ViewCounter";
+import ViewCounter from "@/components/site/ViewCounter";
 import { dict, type Lang } from "@/lib/i18n";
 
 export default function Footer({ lang = "ko" }: { lang?: Lang }) {

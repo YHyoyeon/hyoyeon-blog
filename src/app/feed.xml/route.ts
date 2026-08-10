@@ -1,4 +1,5 @@
 import { notes, noteTitle, noteDesc, SITE_URL } from "@/lib/notes";
+import { notePath } from "@/lib/i18n";
 
 const esc = (s: string) =>
   s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
@@ -8,8 +9,8 @@ export function GET() {
     .map(
       (n) => `    <item>
       <title>${esc(noteTitle(n, "ko"))}</title>
-      <link>${SITE_URL}/notes/${n.slug}</link>
-      <guid>${SITE_URL}/notes/${n.slug}</guid>
+      <link>${SITE_URL}${notePath("ko", n.slug)}</link>
+      <guid>${SITE_URL}${notePath("ko", n.slug)}</guid>
       <description>${esc(noteDesc(n, "ko"))}</description>
       <pubDate>${new Date(n.date).toUTCString()}</pubDate>
     </item>`,

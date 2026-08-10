@@ -33,6 +33,9 @@ export default function BaseHtml({
       suppressHydrationWarning
       className={`${geistSans.variable} ${geistMono.variable} h-full`}
     >
+      {/* no-head-element 규칙은 Pages Router(next/head)용이다. App Router에선 <head>가 정당하고,
+          gtag 인라인 스크립트는 React가 head로 hoist해 주지 않아 여기 두어야 위치가 보장된다. */}
+      {/* eslint-disable-next-line @next/next/no-head-element */}
       <head>
         <link
           rel="stylesheet"

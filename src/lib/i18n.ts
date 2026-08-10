@@ -17,6 +17,18 @@ export const categoryLabelByLang: Record<Lang, Record<NoteCategory, string>> = {
 
 export const catLabel = (lang: Lang, cat: NoteCategory) => categoryLabelByLang[lang][cat];
 
+/**
+ * `YYYY-MM-DD`를 언어별 표기로. timeZone을 UTC로 고정해야 날짜가 하루 밀리지 않고,
+ * 서버·클라이언트가 같은 문자열을 만들어 하이드레이션도 어긋나지 않는다.
+ */
+export const formatDate = (date: string, lang: Lang) =>
+  new Intl.DateTimeFormat(lang === "ko" ? "ko-KR" : "en-US", {
+    year: "numeric",
+    month: lang === "ko" ? "long" : "short",
+    day: "numeric",
+    timeZone: "UTC",
+  }).format(new Date(date));
+
 type Dict = {
   brandSuffix: string;
   portfolio: string;
@@ -35,7 +47,15 @@ type Dict = {
   comments: string;
   guestbook: string;
   guestbookIntro: string;
+  toggleTheme: string;
+  contactTitle: string;
+  contactBody: string;
+  guestbookCta: string;
+  emailCta: string;
 };
+
+/** 메인 페이지 연락 버튼이 여는 주소. */
+export const CONTACT_EMAIL = "gydus.dev@gmail.com";
 
 export const dict: Record<Lang, Dict> = {
   ko: {
@@ -56,6 +76,11 @@ export const dict: Record<Lang, Dict> = {
     comments: "댓글",
     guestbook: "방명록",
     guestbookIntro: "지나가다 한마디 남겨 주세요. GitHub 계정으로 로그인하면 바로 쓸 수 있어요.",
+    toggleTheme: "테마 전환",
+    contactTitle: "남기고 싶은 말이 있나요?",
+    contactBody: "글에 대한 의견이든 그냥 인사든 좋아요. 일 이야기는 메일이 편합니다.",
+    guestbookCta: "방명록 남기기",
+    emailCta: "메일 보내기",
   },
   en: {
     brandSuffix: "Blog",
@@ -75,6 +100,11 @@ export const dict: Record<Lang, Dict> = {
     comments: "Comments",
     guestbook: "Guestbook",
     guestbookIntro: "Leave a note if you're passing through. Sign in with GitHub and you're good to go.",
+    toggleTheme: "Toggle theme",
+    contactTitle: "Anything you'd like to say?",
+    contactBody: "Thoughts on a post, or just hello. For work, email is easier.",
+    guestbookCta: "Sign the guestbook",
+    emailCta: "Send an email",
   },
 };
 
