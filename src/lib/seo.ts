@@ -37,6 +37,9 @@ export function rootMetadata(lang: Lang): Metadata {
     authors: [{ name: AUTHOR }],
     creator: AUTHOR,
     robots: { index: true, follow: true },
+    // Search Console 소유권 확인. vercel.app 서브도메인은 DNS TXT를 넣을 수 없어(존을 Vercel이 소유)
+    // HTML 태그 방식으로 확인한다. → <meta name="google-site-verification" content="...">
+    verification: { google: "9wnkbYVBmtKaBPI3aLT-qhLTJm2A_9jZpP-hLpkZ-Do" },
     openGraph: {
       type: "website",
       siteName: SITE_NAME,
