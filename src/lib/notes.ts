@@ -11,12 +11,14 @@ export interface NoteMeta {
   title: LangText;
   description: LangText;
   category: NoteCategory;
+  /** 발행일 YYYY-MM-DD. 목록·이전/다음 내비의 정렬 기준이다. */
+  date: string;
 }
 
 export const noteTitle = (n: NoteMeta, lang: Lang) => n.title[lang];
 export const noteDesc = (n: NoteMeta, lang: Lang) => n.description[lang];
 
-export const notes: NoteMeta[] = [
+const entries: NoteMeta[] = [
   {
     slug: "sse-backfill-infinite-loop",
     title: {
@@ -28,6 +30,7 @@ export const notes: NoteMeta[] = [
       en: "How a single missing '(' created an infinite loop that, dormant for 9 months, finally saturated the event loop — and how we traced it.",
     },
     category: "Incident",
+    date: "2026-08-08",
   },
   {
     slug: "sso-kms-sequence",
@@ -37,6 +40,7 @@ export const notes: NoteMeta[] = [
       en: "The SSO flow as actually built — login, token issuance, resource access, and refresh.",
     },
     category: "Auth",
+    date: "2026-08-08",
   },
   {
     slug: "legacy-cookie-compatibility",
@@ -46,6 +50,7 @@ export const notes: NoteMeta[] = [
       en: "Why we bake new and legacy cookies together for backward compatibility, and how it's structured.",
     },
     category: "Auth",
+    date: "2026-08-08",
   },
   {
     slug: "migration-flow",
@@ -58,6 +63,7 @@ export const notes: NoteMeta[] = [
       en: "The flow for moving old users onto an external identity provider, and the logic that decides each account's state.",
     },
     category: "Auth",
+    date: "2026-08-08",
   },
   {
     slug: "sns-linking-flow",
@@ -67,6 +73,7 @@ export const notes: NoteMeta[] = [
       en: "A social-login setup that treats the external identity provider as the source of truth and syncs one-way into our own DB.",
     },
     category: "Auth",
+    date: "2026-08-08",
   },
   {
     slug: "payment-flows",
@@ -76,6 +83,7 @@ export const notes: NoteMeta[] = [
       en: "Comparing five payment-gateway integrations — hosted redirect, token issuance, code verification, and legacy SOAP.",
     },
     category: "Payments",
+    date: "2026-08-08",
   },
   {
     slug: "monorepo-structure",
@@ -85,6 +93,7 @@ export const notes: NoteMeta[] = [
       en: "How apps and packages are layered on a pnpm workspace, and how dependencies are managed.",
     },
     category: "Infra",
+    date: "2026-08-08",
   },
   {
     slug: "bun-hono-usage",
@@ -94,6 +103,20 @@ export const notes: NoteMeta[] = [
       en: "Patterns, pros, and cons from actually shipping a project on the Bun runtime with the Hono API framework.",
     },
     category: "Infra",
+    date: "2026-08-08",
+  },
+  {
+    slug: "graphify-knowledge-graph",
+    title: {
+      ko: "graphify 적용기 — 코드베이스를 지식그래프로 질의하기",
+      en: "Applying graphify — querying a codebase as a knowledge graph",
+    },
+    description: {
+      ko: "2,000여 파일을 15,008노드 그래프로 만들어 0 토큰에 얻고, 아키텍처 질의 1건을 약 51,800 → 4,000 토큰으로 줄인 실측 기록",
+      en: "Turning ~2,000 files into a 15,008-node graph for zero tokens, and cutting one architecture query from ~51,800 to ~4,000 tokens — measured.",
+    },
+    category: "Infra",
+    date: "2026-08-10",
   },
   {
     slug: "kingdomscan-indexer",
@@ -106,6 +129,7 @@ export const notes: NoteMeta[] = [
       en: "The architecture of a service that is at once an indexer, a signing hub, and an operator worker.",
     },
     category: "Chain",
+    date: "2026-08-08",
   },
   {
     slug: "random-box-vrf",
@@ -118,6 +142,7 @@ export const notes: NoteMeta[] = [
       en: "An on-chain gacha system named 'VRF' where the randomness is actually produced by an off-chain worker.",
     },
     category: "Chain",
+    date: "2026-08-08",
   },
   {
     slug: "nft-mint-and-purchase-sync",
@@ -130,6 +155,7 @@ export const notes: NoteMeta[] = [
       en: "A design where the server only issues signatures (never holds a private key) and ownership is always settled by an on-chain transaction.",
     },
     category: "Chain",
+    date: "2026-08-08",
   },
   {
     slug: "nft-marketplace-purchase-flow",
@@ -139,6 +165,7 @@ export const notes: NoteMeta[] = [
       en: "A purchase that settles on-chain first and lands in the DB later through two-stage polling.",
     },
     category: "Chain",
+    date: "2026-08-08",
   },
   {
     slug: "cross-chain-bridge",
@@ -151,6 +178,7 @@ export const notes: NoteMeta[] = [
       en: "A burn-and-mint bridge that grew out of running the same asset issued separately on multiple chains.",
     },
     category: "Chain",
+    date: "2026-08-08",
   },
   {
     slug: "quest-attendance-swap-flow",
@@ -163,5 +191,9 @@ export const notes: NoteMeta[] = [
       en: "Now-removed features that reused one pattern: issue a signature, submit on-chain, settle off-chain.",
     },
     category: "Chain",
+    date: "2026-08-08",
   },
 ];
+
+/** 최신순(date 내림차순). 날짜가 같으면 위 배열에 쓴 순서가 그대로 유지된다(sort는 stable). */
+export const notes: NoteMeta[] = entries.sort((a, b) => b.date.localeCompare(a.date));
