@@ -29,7 +29,7 @@ export default function Nav({ lang = "ko", altHref }: { lang?: Lang; altHref?: s
             {other.toUpperCase()}
           </Link>
           <a
-            href="https://yoon-hyoyeon.vercel.app"
+            href={`https://yoon-hyoyeon.vercel.app/?lang=${lang}`}
             className="rounded-full bg-secondary px-4 py-2 text-sm font-semibold text-secondary-foreground transition-colors hover:bg-border"
           >
             {t.portfolio}
