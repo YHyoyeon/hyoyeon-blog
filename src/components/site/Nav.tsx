@@ -15,7 +15,7 @@ export default function Nav({ lang = "ko", altHref }: { lang?: Lang; altHref?: s
 
         <nav className="flex items-center gap-2">
           <Link
-            href={altHref ?? homePath[other]}
+            href={altHref ?? `${homePath[other]}?lang=${other}`}
             className="rounded-full px-2.5 py-2 text-sm font-bold text-muted-foreground transition-colors hover:text-foreground"
             aria-label={other === "en" ? "Switch to English" : "한국어로 전환"}
           >
