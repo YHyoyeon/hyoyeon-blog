@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { SITE_URL } from "@/lib/notes";
-import { homePath, notePath, type Lang } from "@/lib/i18n";
+import { homePath, notePath, guestbookPath, dict, type Lang } from "@/lib/i18n";
 
 export const SITE_NAME = "YHyoyeon Blog";
 export const AUTHOR = "Hyoyeon Yoon";
@@ -63,6 +63,26 @@ export function homeMetadata(lang: Lang): Metadata {
       locale: ogLocale[lang],
       title: m.title,
       description: m.description,
+    },
+  };
+}
+
+export function guestbookMetadata(lang: Lang): Metadata {
+  const title = dict[lang].guestbook;
+  const description = dict[lang].guestbookIntro;
+  return {
+    title,
+    description,
+    alternates: {
+      canonical: guestbookPath[lang],
+      languages: languagesFor(guestbookPath.ko, guestbookPath.en),
+    },
+    openGraph: {
+      type: "website",
+      url: guestbookPath[lang],
+      locale: ogLocale[lang],
+      title,
+      description,
     },
   };
 }

@@ -8,6 +8,7 @@ export const otherLang: Record<Lang, Lang> = { ko: "en", en: "ko" };
 export const homePath: Record<Lang, string> = { ko: "/", en: "/en" };
 export const notePath = (lang: Lang, slug: string) =>
   lang === "ko" ? `/notes/${slug}` : `/en/notes/${slug}`;
+export const guestbookPath: Record<Lang, string> = { ko: "/guestbook", en: "/en/guestbook" };
 
 export const categoryLabelByLang: Record<Lang, Record<NoteCategory, string>> = {
   ko: { Incident: "장애", Auth: "인증", Infra: "인프라", Payments: "결제", Chain: "온체인" },
@@ -29,6 +30,10 @@ type Dict = {
   prev: string;
   next: string;
   relatedIn: (cat: string) => string;
+  views: (n: number) => string;
+  comments: string;
+  guestbook: string;
+  guestbookIntro: string;
 };
 
 export const dict: Record<Lang, Dict> = {
@@ -45,6 +50,10 @@ export const dict: Record<Lang, Dict> = {
     prev: "이전 글",
     next: "다음 글",
     relatedIn: (cat) => `Related — ${cat} 카테고리의 다른 글`,
+    views: (n) => `${n.toLocaleString("ko-KR")}회`,
+    comments: "댓글",
+    guestbook: "방명록",
+    guestbookIntro: "지나가다 한마디 남겨 주세요. GitHub 계정으로 로그인하면 바로 쓸 수 있어요.",
   },
   en: {
     brandSuffix: "Blog",
@@ -59,6 +68,10 @@ export const dict: Record<Lang, Dict> = {
     prev: "Previous",
     next: "Next",
     relatedIn: (cat) => `Related — more in ${cat}`,
+    views: (n) => `${n.toLocaleString("en-US")} views`,
+    comments: "Comments",
+    guestbook: "Guestbook",
+    guestbookIntro: "Leave a note if you're passing through. Sign in with GitHub and you're good to go.",
   },
 };
 

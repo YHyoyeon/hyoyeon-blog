@@ -1,6 +1,6 @@
 import Link from "next/link";
 import ThemeToggle from "./ThemeToggle";
-import { dict, homePath, otherLang, type Lang } from "@/lib/i18n";
+import { dict, homePath, guestbookPath, otherLang, type Lang } from "@/lib/i18n";
 
 export default function Nav({ lang = "ko", altHref }: { lang?: Lang; altHref?: string }) {
   const t = dict[lang];
@@ -14,6 +14,12 @@ export default function Nav({ lang = "ko", altHref }: { lang?: Lang; altHref?: s
         </Link>
 
         <nav className="flex items-center gap-2">
+          <Link
+            href={guestbookPath[lang]}
+            className="rounded-full px-2.5 py-2 text-sm font-semibold text-muted-foreground transition-colors hover:text-foreground"
+          >
+            {t.guestbook}
+          </Link>
           <Link
             href={altHref ?? `${homePath[other]}?lang=${other}`}
             className="rounded-full px-2.5 py-2 text-sm font-bold text-muted-foreground transition-colors hover:text-foreground"
