@@ -122,7 +122,13 @@ export function homeJsonLd(lang: Lang) {
   };
 }
 
-export function noteJsonLd(lang: Lang, slug: string, title: string, description: string) {
+export function noteJsonLd(
+  lang: Lang,
+  slug: string,
+  title: string,
+  description: string,
+  date: string,
+) {
   const url = `${SITE_URL}${notePath(lang, slug)}`;
   return {
     "@context": "https://schema.org",
@@ -132,6 +138,8 @@ export function noteJsonLd(lang: Lang, slug: string, title: string, description:
     inLanguage: lang,
     url,
     mainEntityOfPage: url,
+    datePublished: date,
+    dateModified: date,
     author: { "@type": "Person", name: AUTHOR },
     publisher: { "@type": "Person", name: AUTHOR },
     isPartOf: { "@type": "Blog", name: SITE_NAME, url: `${SITE_URL}${homePath[lang]}` },

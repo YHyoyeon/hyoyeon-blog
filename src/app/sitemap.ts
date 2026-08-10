@@ -24,6 +24,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     const languages = { ko: abs(notePath("ko", n.slug)), en: abs(notePath("en", n.slug)) };
     return (["ko", "en"] as const).map((lang) => ({
       url: abs(notePath(lang, n.slug)),
+      lastModified: n.date,
       changeFrequency: "monthly" as const,
       priority: 0.7,
       alternates: { languages },

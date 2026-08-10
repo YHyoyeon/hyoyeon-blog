@@ -55,7 +55,9 @@ export default function NotePage({ slug, lang }: { slug: string; lang: Lang }) {
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
-          __html: JSON.stringify(noteJsonLd(lang, slug, noteTitle(note, lang), noteDesc(note, lang))),
+          __html: JSON.stringify(
+            noteJsonLd(lang, slug, noteTitle(note, lang), noteDesc(note, lang), note.date),
+          ),
         }}
       />
       <Nav lang={lang} altHref={notePath(otherLang[lang], slug)} />

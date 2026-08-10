@@ -11,6 +11,7 @@ export function GET() {
       <link>${SITE_URL}/notes/${n.slug}</link>
       <guid>${SITE_URL}/notes/${n.slug}</guid>
       <description>${esc(noteDesc(n, "ko"))}</description>
+      <pubDate>${new Date(n.date).toUTCString()}</pubDate>
     </item>`,
     )
     .join("\n");

@@ -9,7 +9,17 @@ import type { NextRequest } from "next/server";
  * 글 상세(`/notes/...`)는 일부러 제외한다 — 공유된 링크와 크롤러가 언어를 이미 지정한 URL이라
  * 여기서 리다이렉트하면 한쪽 언어가 색인에서 빠진다.
  */
+/**
+ * 검색엔진·SNS 크롤러는 리다이렉트 없이 통과시킨다.
+ * 봇은 Accept-Language를 안 보내서 전부 `/en`으로 튕기는데, 그러면 크롤러가 ko 버전을
+ * 볼 수 없어 색인에서 빠진다(Google도 언어 추정 기반 자동 리다이렉트를 권장하지 않는다).
+ * 콘텐츠를 다르게 주는 게 아니라 리다이렉트만 건너뛰는 것이라 클로킹이 아니다.
+ */
+const CRAWLER = /bot|crawl|spider|slurp|facebookexternalhit|preview|embedly/i;
+
 export function proxy(request: NextRequest) {
+  if (CRAWLER.test(request.headers.get("user-agent") ?? "")) return;
+
   const chosen = request.nextUrl.searchParams.get("lang");
   if (chosen === "ko" || chosen === "en") {
     const response = NextResponse.redirect(new URL(chosen === "ko" ? "/" : "/en", request.url));
