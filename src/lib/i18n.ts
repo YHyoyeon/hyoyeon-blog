@@ -31,6 +31,7 @@ type Dict = {
   next: string;
   relatedIn: (cat: string) => string;
   views: (n: number) => string;
+  visitors: (n: number) => string;
   comments: string;
   guestbook: string;
   guestbookIntro: string;
@@ -51,6 +52,7 @@ export const dict: Record<Lang, Dict> = {
     next: "다음 글",
     relatedIn: (cat) => `Related — ${cat} 카테고리의 다른 글`,
     views: (n) => `${n.toLocaleString("ko-KR")}회`,
+    visitors: (n) => `방문자 ${n.toLocaleString("ko-KR")}명`,
     comments: "댓글",
     guestbook: "방명록",
     guestbookIntro: "지나가다 한마디 남겨 주세요. GitHub 계정으로 로그인하면 바로 쓸 수 있어요.",
@@ -69,6 +71,7 @@ export const dict: Record<Lang, Dict> = {
     next: "Next",
     relatedIn: (cat) => `Related — more in ${cat}`,
     views: (n) => `${n.toLocaleString("en-US")} views`,
+    visitors: (n) => `${n.toLocaleString("en-US")} visitors`,
     comments: "Comments",
     guestbook: "Guestbook",
     guestbookIntro: "Leave a note if you're passing through. Sign in with GitHub and you're good to go.",
