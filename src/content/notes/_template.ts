@@ -30,7 +30,7 @@
  *   - intro는 2~3문장. 글의 결론(무엇을 했고 결과가 얼마였나)을 먼저 말한다.
  */
 import { CheckCircle2, AlertTriangle, Lightbulb, Layers } from "lucide-react";
-import type { NoteContent } from "@/lib/note-content";
+import type { NoteBody, NoteContent } from "@/lib/note-content";
 
 const koChart = `flowchart LR
     A["시작"] --> B["끝"]`;
@@ -38,96 +38,97 @@ const koChart = `flowchart LR
 const enChart = `flowchart LR
     A["start"] --> B["end"]`;
 
-const content: NoteContent = {
-  ko: {
-    intro: "무엇을 했고, 결과가 어땠는지 2~3문장으로. 수치가 있으면 여기서 먼저 말한다.",
-    sections: [
-      {
-        label: "PURPOSE — 목적",
-        title: "왜 이걸 했나",
-        blocks: [{ kind: "prose", paragraphs: ["배경과 문제. 무엇이 불편해서 시작했는지."] }],
-      },
-      // 선택 섹션 — 다이어그램이 없으면 통째로 지운다
-      {
-        label: "DIAGRAM — 흐름",
-        title: "전체 흐름",
-        blocks: [{ kind: "mermaid", chart: koChart }],
-      },
-      {
-        label: "HOW — 구현 방법",
-        title: "실제로 어떻게 했나",
-        blocks: [
-          { kind: "steps", steps: [{ title: "단계 제목", body: "그 단계에서 실제로 한 일." }] },
-        ],
-      },
-      {
-        label: "KEY POINTS — 중요한 것",
-        title: "핵심 포인트",
-        blocks: [
-          {
-            kind: "keypoints",
-            items: [{ icon: Layers, title: "짚고 갈 사실 한 줄", body: "왜 그런지, 무엇이 근거인지." }],
-          },
-        ],
-      },
-      {
-        label: "PROS — 장점",
-        title: "좋았던 이유",
-        blocks: [{ kind: "list", icon: CheckCircle2, tone: "accent", items: ["장점 — 근거."] }],
-      },
-      {
-        label: "CONS — 단점 · 트레이드오프",
-        title: "실제로 부딪힌 문제",
-        blocks: [{ kind: "list", icon: AlertTriangle, tone: "destructive", items: ["단점 — 어떻게 드러났는지."] }],
-      },
-      {
-        label: "NEXT — 개선점",
-        title: "앞으로 개선하고 싶은 부분",
-        blocks: [{ kind: "list", icon: Lightbulb, tone: "muted", items: ["다음에 할 것 — 왜."] }],
-      },
-    ],
-  },
-  en: {
-    intro: "Two or three sentences on what was done and how it turned out. Lead with the numbers if there are any.",
-    sections: [
-      {
-        label: "PURPOSE",
-        title: "Why this was done",
-        blocks: [{ kind: "prose", paragraphs: ["Background and problem — what was painful enough to start."] }],
-      },
-      { label: "DIAGRAM", title: "The overall flow", blocks: [{ kind: "mermaid", chart: enChart }] },
-      {
-        label: "HOW",
-        title: "How it was actually built",
-        blocks: [{ kind: "steps", steps: [{ title: "Step title", body: "What actually happened in this step." }] }],
-      },
-      {
-        label: "KEY POINTS",
-        title: "Key points",
-        blocks: [
-          {
-            kind: "keypoints",
-            items: [{ icon: Layers, title: "One-line fact worth pinning", body: "Why it's true and what backs it." }],
-          },
-        ],
-      },
-      {
-        label: "PROS",
-        title: "Why it worked well",
-        blocks: [{ kind: "list", icon: CheckCircle2, tone: "accent", items: ["An upside — and the reason."] }],
-      },
-      {
-        label: "CONS",
-        title: "Problems actually hit",
-        blocks: [{ kind: "list", icon: AlertTriangle, tone: "destructive", items: ["A downside — and how it surfaced."] }],
-      },
-      {
-        label: "NEXT",
-        title: "What I'd improve next",
-        blocks: [{ kind: "list", icon: Lightbulb, tone: "muted", items: ["Next thing to do — and why."] }],
-      },
-    ],
-  },
+const ko: NoteBody = {
+  intro: "무엇을 했고, 결과가 어땠는지 2~3문장으로. 수치가 있으면 여기서 먼저 말한다.",
+  sections: [
+    {
+      label: "PURPOSE — 목적",
+      title: "왜 이걸 했나",
+      blocks: [{ kind: "prose", paragraphs: ["배경과 문제. 무엇이 불편해서 시작했는지."] }],
+    },
+    // 선택 섹션 — 다이어그램이 없으면 통째로 지운다
+    {
+      label: "DIAGRAM — 흐름",
+      title: "전체 흐름",
+      blocks: [{ kind: "mermaid", chart: koChart }],
+    },
+    {
+      label: "HOW — 구현 방법",
+      title: "실제로 어떻게 했나",
+      blocks: [
+        { kind: "steps", steps: [{ title: "단계 제목", body: "그 단계에서 실제로 한 일." }] },
+      ],
+    },
+    {
+      label: "KEY POINTS — 중요한 것",
+      title: "핵심 포인트",
+      blocks: [
+        {
+          kind: "keypoints",
+          items: [{ icon: Layers, title: "짚고 갈 사실 한 줄", body: "왜 그런지, 무엇이 근거인지." }],
+        },
+      ],
+    },
+    {
+      label: "PROS — 장점",
+      title: "좋았던 이유",
+      blocks: [{ kind: "list", icon: CheckCircle2, tone: "accent", items: ["장점 — 근거."] }],
+    },
+    {
+      label: "CONS — 단점 · 트레이드오프",
+      title: "실제로 부딪힌 문제",
+      blocks: [{ kind: "list", icon: AlertTriangle, tone: "destructive", items: ["단점 — 어떻게 드러났는지."] }],
+    },
+    {
+      label: "NEXT — 개선점",
+      title: "앞으로 개선하고 싶은 부분",
+      blocks: [{ kind: "list", icon: Lightbulb, tone: "muted", items: ["다음에 할 것 — 왜."] }],
+    },
+  ],
 };
+
+const en: NoteBody = {
+  intro: "Two or three sentences on what was done and how it turned out. Lead with the numbers if there are any.",
+  sections: [
+    {
+      label: "PURPOSE",
+      title: "Why this was done",
+      blocks: [{ kind: "prose", paragraphs: ["Background and problem — what was painful enough to start."] }],
+    },
+    { label: "DIAGRAM", title: "The overall flow", blocks: [{ kind: "mermaid", chart: enChart }] },
+    {
+      label: "HOW",
+      title: "How it was actually built",
+      blocks: [{ kind: "steps", steps: [{ title: "Step title", body: "What actually happened in this step." }] }],
+    },
+    {
+      label: "KEY POINTS",
+      title: "Key points",
+      blocks: [
+        {
+          kind: "keypoints",
+          items: [{ icon: Layers, title: "One-line fact worth pinning", body: "Why it's true and what backs it." }],
+        },
+      ],
+    },
+    {
+      label: "PROS",
+      title: "Why it worked well",
+      blocks: [{ kind: "list", icon: CheckCircle2, tone: "accent", items: ["An upside — and the reason."] }],
+    },
+    {
+      label: "CONS",
+      title: "Problems actually hit",
+      blocks: [{ kind: "list", icon: AlertTriangle, tone: "destructive", items: ["A downside — and how it surfaced."] }],
+    },
+    {
+      label: "NEXT",
+      title: "What I'd improve next",
+      blocks: [{ kind: "list", icon: Lightbulb, tone: "muted", items: ["Next thing to do — and why."] }],
+    },
+  ],
+};
+
+const content: NoteContent = { ko, en };
 
 export default content;
