@@ -38,8 +38,9 @@ export function rootMetadata(lang: Lang): Metadata {
     creator: AUTHOR,
     robots: { index: true, follow: true },
     // Search Console 소유권 확인. vercel.app 서브도메인은 DNS TXT를 넣을 수 없어(존을 Vercel이 소유)
-    // HTML 태그 방식으로 확인한다. → <meta name="google-site-verification" content="...">
-    verification: { google: "9wnkbYVBmtKaBPI3aLT-qhLTJm2A_9jZpP-hLpkZ-Do" },
+    // HTML 태그 방식으로 확인한다. 확인 방법마다 토큰이 다르니 TXT용 값을 넣으면 안 된다.
+    // 파일 방식(public/googleb28e37b507de299f.html)도 함께 올려 둔 이중 확인이다.
+    verification: { google: "6W2HLSzJNIbUKkJabpxwaSXJ5mEP4_DK29Jq8ZREwDc" },
     openGraph: {
       type: "website",
       siteName: SITE_NAME,
