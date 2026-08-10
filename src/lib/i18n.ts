@@ -52,6 +52,15 @@ type Dict = {
   contactBody: string;
   guestbookCta: string;
   emailCta: string;
+  formName: string;
+  formEmail: string;
+  formMessage: string;
+  formSubmit: string;
+  formSending: string;
+  formSent: string;
+  formInvalid: string;
+  formRateLimited: string;
+  formError: string;
 };
 
 /** 메인 페이지 연락 버튼이 여는 주소. */
@@ -81,6 +90,15 @@ export const dict: Record<Lang, Dict> = {
     contactBody: "글에 대한 의견이든 그냥 인사든 좋아요. 일 이야기는 메일이 편합니다.",
     guestbookCta: "방명록 남기기",
     emailCta: "메일 보내기",
+    formName: "이름",
+    formEmail: "답장받을 이메일",
+    formMessage: "내용",
+    formSubmit: "보내기",
+    formSending: "보내는 중…",
+    formSent: "보냈어요. 읽고 답장드릴게요.",
+    formInvalid: "이름·이메일·내용(10자 이상)을 확인해 주세요.",
+    formRateLimited: "잠시 뒤에 다시 시도해 주세요.",
+    formError: "전송에 실패했어요. 잠시 뒤 다시 시도해 주세요.",
   },
   en: {
     brandSuffix: "Blog",
@@ -105,6 +123,15 @@ export const dict: Record<Lang, Dict> = {
     contactBody: "Thoughts on a post, or just hello. For work, email is easier.",
     guestbookCta: "Sign the guestbook",
     emailCta: "Send an email",
+    formName: "Name",
+    formEmail: "Email for the reply",
+    formMessage: "Message",
+    formSubmit: "Send",
+    formSending: "Sending…",
+    formSent: "Sent. I'll read it and get back to you.",
+    formInvalid: "Check the name, email, and message (10 characters or more).",
+    formRateLimited: "Please try again in a bit.",
+    formError: "Couldn't send that. Please try again in a bit.",
   },
 };
 

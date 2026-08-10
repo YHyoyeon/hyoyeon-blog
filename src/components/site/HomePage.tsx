@@ -3,6 +3,7 @@ import { PenLine, Mail } from "lucide-react";
 import Nav from "@/components/site/Nav";
 import Footer from "@/components/site/Footer";
 import HomeList, { CategoryChip, CategoryThumb } from "@/components/site/HomeList";
+import ContactForm from "@/components/site/ContactForm";
 import { notes, noteTitle, noteDesc } from "@/lib/notes";
 import {
   notePath,
@@ -65,22 +66,27 @@ export default function HomePage({ lang }: { lang: Lang }) {
             <p className="mt-2 text-[15px] leading-relaxed text-muted-foreground break-keep">
               {t.contactBody}
             </p>
-            <div className="mt-5 flex flex-wrap gap-2.5">
-              <Link
-                href={guestbookPath[lang]}
-                className="inline-flex items-center gap-2 rounded-full bg-accent px-5 py-2.5 text-sm font-semibold text-accent-foreground transition-opacity hover:opacity-90"
-              >
-                <PenLine size={16} />
-                {t.guestbookCta}
-              </Link>
+            <Link
+              href={guestbookPath[lang]}
+              className="mt-5 inline-flex items-center gap-2 rounded-full bg-background px-5 py-2.5 text-sm font-semibold text-foreground transition-colors hover:bg-border"
+            >
+              <PenLine size={16} />
+              {t.guestbookCta}
+            </Link>
+
+            {/* 폼은 RESEND_API_KEY가 있을 때만 띄운다. 없으면 mailto로 폴백해서
+                키를 넣기 전에도 연락 경로가 끊기지 않게 한다. */}
+            {process.env.RESEND_API_KEY ? (
+              <ContactForm lang={lang} />
+            ) : (
               <a
                 href={`mailto:${CONTACT_EMAIL}`}
-                className="inline-flex items-center gap-2 rounded-full bg-background px-5 py-2.5 text-sm font-semibold text-foreground transition-colors hover:bg-border"
+                className="mt-5 ml-2.5 inline-flex items-center gap-2 rounded-full bg-accent px-5 py-2.5 text-sm font-semibold text-accent-foreground transition-opacity hover:opacity-90"
               >
                 <Mail size={16} />
                 {t.emailCta}
               </a>
-            </div>
+            )}
           </section>
         </div>
       </main>
