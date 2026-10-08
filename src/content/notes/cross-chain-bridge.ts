@@ -5,9 +5,9 @@ const koChart = `sequenceDiagram
     autonumber
     participant User as 사용자 지갑
     participant Backend as 백엔드 API
-    participant Scan as kingdomScan
+    participant Scan as 인덱싱 허브
     participant Src as 출발 체인 (Market 컨트랙트)
-    participant Worker as kingdomScan 브릿지 워커
+    participant Worker as 인덱싱 허브 브릿지 워커
     participant Dst as 도착 체인 (Market 컨트랙트)
 
     User->>Backend: 브릿지 요청 (토큰/NFT, 목적 체인)
@@ -37,9 +37,9 @@ const enChart = `sequenceDiagram
     autonumber
     participant User as User wallet
     participant Backend as Backend API
-    participant Scan as kingdomScan
+    participant Scan as indexing hub
     participant Src as Source chain (Market contract)
-    participant Worker as kingdomScan bridge worker
+    participant Worker as indexing hub bridge worker
     participant Dst as Destination chain (Market contract)
 
     User->>Backend: bridge request (token/NFT, target chain)

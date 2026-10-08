@@ -119,10 +119,10 @@ const entries: NoteMeta[] = [
     date: "2026-08-10",
   },
   {
-    slug: "kingdomscan-indexer",
+    slug: "chain-indexer",
     title: {
-      ko: "kingdomScan: 자체 구축 블록체인 인덱서",
-      en: "kingdomScan: a home-built blockchain indexer",
+      ko: "자체 구축 블록체인 인덱서",
+      en: "A home-built blockchain indexer",
     },
     description: {
       ko: "인덱서·서명 허브·운영자 워커 세 역할을 겸하는 서비스의 구조",

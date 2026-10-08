@@ -5,7 +5,7 @@ const koWebhook = `sequenceDiagram
     autonumber
     participant Browser as 브라우저
     participant Billing as billing 서버
-    participant PG as PG (A사/B사/D사)
+    participant PG as PG (호스팅형/토큰형)
     participant Webhook as 웹훅 수신 Lambda
     participant DB as 결제 데이터베이스
 
@@ -91,7 +91,7 @@ const ko: NoteBody = {
         {
           kind: "prose",
           paragraphs: [
-            "billing 앱은 Skrill·Xsolla·Epin·Pinvalidda·Tigo 5개 결제 수단을 붙이고 있지만, 각 PG사가 요구하는 연동 패턴이 완전히 다릅니다. 하나의 결제 개념 안에 호스팅 리다이렉트·토큰 발급·코드 검증·레거시 SOAP 방식이 섞여 있어 신규 합류자가 헷갈리기 쉬운 지점을 정리했습니다.",
+            "billing 앱은 PG A·PG B·PG C·PG D·PG E 5개 결제 수단을 붙이고 있지만, 각 PG사가 요구하는 연동 패턴이 완전히 다릅니다. 하나의 결제 개념 안에 호스팅 리다이렉트·토큰 발급·코드 검증·레거시 SOAP 방식이 섞여 있어 신규 합류자가 헷갈리기 쉬운 지점을 정리했습니다.",
           ],
         },
       ],
@@ -104,11 +104,11 @@ const ko: NoteBody = {
           kind: "steps",
           steps: [
             { title: "결제 요청", body: "사용자가 상품을 선택하면 billing 서버가 상품·사용자 정보를 검증하고 충전 이력을 대기 상태로 만든다." },
-            { title: "PG 페이지 이동", body: "Skrill은 폼 데이터를 만들어 결제 페이지로 그대로 POST하고, Xsolla는 토큰을 발급받아 그 토큰으로 결제창 URL을 구성한다." },
-            { title: "웹훅 수신", body: "Skrill·Xsolla·Pinvalidda의 결제 완료 콜백은 billing 서버가 아니라 별도의 billing-webhook Lambda가 받는다." },
+            { title: "PG 페이지 이동", body: "PG A는 폼 데이터를 만들어 결제 페이지로 그대로 POST하고, PG B는 토큰을 발급받아 그 토큰으로 결제창 URL을 구성한다." },
+            { title: "웹훅 수신", body: "PG A·PG B·PG D의 결제 완료 콜백은 billing 서버가 아니라 별도의 billing-webhook Lambda가 받는다." },
             { title: "상태 확정", body: "웹훅 Lambda가 서명·체크섬을 검증하고 충전 이력을 완료 상태로 갱신한다. 내부 오류가 나도 PG에는 200을 돌려줘 불필요한 재시도를 막고, 중복 웹훅은 별도로 걸러낸다." },
-            { title: "Epin(선불 카드)은 예외", body: "리다이렉트·웹훅 없이 카드 번호와 보안코드를 그 자리에서 검증한다. 무료 쿠폰 경로는 지급을 대기 테이블에 적재하지만, 일반 카드 경로의 지급 처리는 아직 구현돼 있지 않다." },
-            { title: "Pinvalidda(레거시 SOAP)", body: "XML 바디를 직접 문자열로 조립해 결제 참조번호를 발급받고, 세미콜론으로 구분된 커스텀 텍스트 응답을 별도 파서로 해석한다." },
+            { title: "PG C(선불 카드)는 예외", body: "리다이렉트·웹훅 없이 카드 번호와 보안코드를 그 자리에서 검증한다. 무료 쿠폰 경로는 지급을 대기 테이블에 적재하지만, 일반 카드 경로의 지급 처리는 아직 구현돼 있지 않다." },
+            { title: "PG D(레거시 SOAP)", body: "XML 바디를 직접 문자열로 조립해 결제 참조번호를 발급받고, 세미콜론으로 구분된 커스텀 텍스트 응답을 별도 파서로 해석한다." },
           ],
         },
       ],
@@ -120,17 +120,17 @@ const ko: NoteBody = {
         {
           kind: "keypoints",
           items: [
-            { icon: SplitSquareHorizontal, title: "결제 요청과 완료 확정이 물리적으로 분리돼 있다", body: "billing 서버가 결제 요청을 만들고, Skrill·Xsolla·Pinvalidda의 완료 웹훅은 별도의 billing-webhook Lambda가 받는다." },
+            { icon: SplitSquareHorizontal, title: "결제 요청과 완료 확정이 물리적으로 분리돼 있다", body: "billing 서버가 결제 요청을 만들고, PG A·PG B·PG D의 완료 웹훅은 별도의 billing-webhook Lambda가 받는다." },
             { icon: RadioTower, title: "웹훅은 항상 200을 돌려주고, 중복은 따로 걸러낸다", body: "내부 오류가 나도 일단 200을 응답해 PG의 불필요한 재시도를 억제한다. 이미 처리된 주문이 다시 오면 중복 처리 로직으로 조용히 무시한다." },
-            { icon: Clock, title: "Epin(선불 카드)은 무료 쿠폰 경로만 대기 테이블에 쌓인다", body: "카드 검증까지는 동기로 처리하지만, 실제 캐시 지급은 무료 쿠폰 경로에서만 대기 테이블에 적재된다. 일반 카드 결제의 지급 처리는 TODO로 남아 아직 구현되지 않았다." },
-            { icon: AlertOctagon, title: "Pinvalidda(레거시 SOAP) 연동은 체크섬 키가 하드코딩돼 있다", body: "콜롬비아·에콰도르·코스타리카 3개국 가맹점 설정이 코드에 그대로 박혀 있고, 위·변조 체크섬 계산에 쓰는 고정 키도 코드 안에 있다." },
-            { icon: PowerOff, title: "Tigo(통신사 소액결제)는 코드 전체가 주석 처리돼 있다", body: "컨트롤러 라우팅이 꺼져 있고(enable: false), 서비스 로직은 전부 주석 처리됐다. API 문서에도 '현재 비활성화된 API'라고 명시돼 있다." },
+            { icon: Clock, title: "PG C(선불 카드)는 무료 쿠폰 경로만 대기 테이블에 쌓인다", body: "카드 검증까지는 동기로 처리하지만, 실제 캐시 지급은 무료 쿠폰 경로에서만 대기 테이블에 적재된다. 일반 카드 결제의 지급 처리는 TODO로 남아 아직 구현되지 않았다." },
+            { icon: AlertOctagon, title: "PG D(레거시 SOAP) 연동은 시크릿이 코드에 하드코딩돼 있다", body: "국가별 가맹점 설정이 코드에 그대로 박혀 있고, 위·변조 체크섬 계산에 쓰는 고정 키도 코드 안에 있다." },
+            { icon: PowerOff, title: "PG E(통신사 소액결제)는 코드 전체가 주석 처리돼 있다", body: "컨트롤러 라우팅이 꺼져 있고(enable: false), 서비스 로직은 전부 주석 처리됐다. API 문서에도 '현재 비활성화된 API'라고 명시돼 있다." },
           ],
         },
       ],
     },
-    { label: "DIAGRAM — 웹훅형", title: "웹훅 기반 결제 흐름 (Skrill · Xsolla · Pinvalidda)", blocks: [{ kind: "mermaid", chart: koWebhook }] },
-    { label: "DIAGRAM — 선불형", title: "선불 카드형 흐름 (Epin)", blocks: [{ kind: "mermaid", chart: koPrepaid }] },
+    { label: "DIAGRAM — 웹훅형", title: "웹훅 기반 결제 흐름 (PG A · PG B · PG D)", blocks: [{ kind: "mermaid", chart: koWebhook }] },
+    { label: "DIAGRAM — 선불형", title: "선불 카드형 흐름 (PG C)", blocks: [{ kind: "mermaid", chart: koPrepaid }] },
     {
       label: "PROS — 장점",
       title: "이 구조가 좋은 이유",
@@ -157,10 +157,10 @@ const ko: NoteBody = {
           tone: "destructive",
           items: [
             "5개 PG가 SOAP·REST·동기 처리 등 서로 다른 프로토콜을 쓰고 있어, 신규 합류자가 전체 그림을 파악하는 데 시간이 걸린다.",
-            "Pinvalidda(레거시 SOAP) 연동은 체크섬 키가 하드코딩돼 있어 설정 분리가 안 된 기술 부채로 남아 있다.",
+            "PG D(레거시 SOAP) 연동은 시크릿이 코드에 하드코딩돼 있어 설정 분리가 안 된 기술 부채로 남아 있다.",
             "상품 캐시 키에 통화(currency)가 빠져 있다 — 국가별로 통화가 다른 상품은 캐시가 뒤섞일 여지가 있다.",
-            "Epin 일반 카드 결제의 캐시 지급 로직이 TODO로 남아 있어, 무료 쿠폰 경로 외에는 실제 지급이 완결되지 않는다.",
-            "시크릿 관리 방식이 PG마다 다르다 — Xsolla는 Parameter Store에서 동적으로 가져오지만 Pinvalidda는 코드에 그대로 박혀 있다.",
+            "PG C 일반 카드 결제의 캐시 지급 로직이 TODO로 남아 있어, 무료 쿠폰 경로 외에는 실제 지급이 완결되지 않는다.",
+            "시크릿 관리 방식이 PG마다 다르다 — PG B는 Parameter Store에서 동적으로 가져오지만 PG D는 코드에 그대로 박혀 있다.",
           ],
         },
       ],
@@ -174,10 +174,10 @@ const ko: NoteBody = {
           icon: Lightbulb,
           tone: "muted",
           items: [
-            "Pinvalidda 체크섬 키를 Parameter Store 등 시크릿 매니저로 옮겨, Xsolla와 동일한 방식으로 통일한다.",
-            "Epin 일반 카드 결제 경로의 캐시 지급 로직을 마저 구현한다.",
+            "PG D 체크섬 키를 Parameter Store 등 시크릿 매니저로 옮겨, PG B와 동일한 방식으로 통일한다.",
+            "PG C 일반 카드 결제 경로의 캐시 지급 로직을 마저 구현한다.",
             "상품 캐시 키에 통화를 포함시켜, 국가·통화별로 정확히 분리되도록 고친다.",
-            "Tigo(비활성화) 연동을 완성하거나, 계속 쓰지 않을 거라면 죽은 코드를 완전히 제거한다.",
+            "PG E(비활성화) 연동을 완성하거나, 계속 쓰지 않을 거라면 죽은 코드를 완전히 제거한다.",
           ],
         },
       ],
@@ -195,7 +195,7 @@ const en: NoteBody = {
         {
           kind: "prose",
           paragraphs: [
-            "The billing app integrates five payment methods — Skrill, Xsolla, Epin, Pinvalidda, and Tigo — but each provider demands a completely different integration pattern. Hosted redirects, token issuance, code verification, and legacy SOAP all coexist inside one 'payment' concept, so this note maps out the spots that trip up newcomers.",
+            "The billing app integrates five payment methods — PG A, PG B, PG C, PG D, and PG E — but each provider demands a completely different integration pattern. Hosted redirects, token issuance, code verification, and legacy SOAP all coexist inside one 'payment' concept, so this note maps out the spots that trip up newcomers.",
           ],
         },
       ],
@@ -208,11 +208,11 @@ const en: NoteBody = {
           kind: "steps",
           steps: [
             { title: "Payment request", body: "When the user picks a product, the billing server validates the product and user, and creates a top-up record in a pending state." },
-            { title: "Redirect to the PG page", body: "Skrill builds form data and POSTs it straight to the payment page; Xsolla issues a token and builds the checkout URL from it." },
-            { title: "Webhook reception", body: "The completion callbacks for Skrill, Xsolla, and Pinvalidda land on a separate billing-webhook Lambda, not the billing server." },
+            { title: "Redirect to the PG page", body: "PG A builds form data and POSTs it straight to the payment page; PG B issues a token and builds the checkout URL from it." },
+            { title: "Webhook reception", body: "The completion callbacks for PG A, PG B, and PG D land on a separate billing-webhook Lambda, not the billing server." },
             { title: "State finalization", body: "The webhook Lambda verifies the signature/checksum and marks the top-up record complete. Even on an internal error it returns 200 to the PG to suppress useless retries, and duplicate webhooks are filtered separately." },
-            { title: "Epin (prepaid cards) is the exception", body: "No redirect or webhook — the card number and security code are verified on the spot. The free-coupon path enqueues the grant into a pending table, but the regular-card path's grant handling isn't implemented yet." },
-            { title: "Pinvalidda (legacy SOAP)", body: "It assembles the XML body by string concatenation to get a payment reference number, and parses a semicolon-delimited custom text response with its own parser." },
+            { title: "PG C (prepaid cards) is the exception", body: "No redirect or webhook — the card number and security code are verified on the spot. The free-coupon path enqueues the grant into a pending table, but the regular-card path's grant handling isn't implemented yet." },
+            { title: "PG D (legacy SOAP)", body: "It assembles the XML body by string concatenation to get a payment reference number, and parses a semicolon-delimited custom text response with its own parser." },
           ],
         },
       ],
@@ -224,17 +224,17 @@ const en: NoteBody = {
         {
           kind: "keypoints",
           items: [
-            { icon: SplitSquareHorizontal, title: "Payment request and completion are physically separated", body: "The billing server creates the payment request, while a separate billing-webhook Lambda receives the completion webhooks for Skrill, Xsolla, and Pinvalidda." },
+            { icon: SplitSquareHorizontal, title: "Payment request and completion are physically separated", body: "The billing server creates the payment request, while a separate billing-webhook Lambda receives the completion webhooks for PG A, PG B, and PG D." },
             { icon: RadioTower, title: "Webhooks always return 200; duplicates are filtered separately", body: "Even on an internal error it responds 200 to suppress useless PG retries. If an already-processed order arrives again, dedup logic silently ignores it." },
-            { icon: Clock, title: "For Epin, only the free-coupon path lands in the pending table", body: "Card verification is synchronous, but the actual cash grant is enqueued only on the free-coupon path. The regular card payment's grant handling remains an unimplemented TODO." },
-            { icon: AlertOctagon, title: "Pinvalidda's checksum key is hardcoded", body: "Merchant settings for Colombia, Ecuador, and Costa Rica sit directly in the code, and so does the fixed key used for the anti-tamper checksum." },
-            { icon: PowerOff, title: "Tigo (carrier billing) is entirely commented out", body: "Controller routing is off (enable: false) and the service logic is fully commented out. The API docs also explicitly say 'currently disabled API'." },
+            { icon: Clock, title: "For PG C, only the free-coupon path lands in the pending table", body: "Card verification is synchronous, but the actual cash grant is enqueued only on the free-coupon path. The regular card payment's grant handling remains an unimplemented TODO." },
+            { icon: AlertOctagon, title: "PG D's secrets are hardcoded", body: "Per-country merchant settings sit directly in the code, and so does the fixed key used for the anti-tamper checksum." },
+            { icon: PowerOff, title: "PG E (carrier billing) is entirely commented out", body: "Controller routing is off (enable: false) and the service logic is fully commented out. The API docs also explicitly say 'currently disabled API'." },
           ],
         },
       ],
     },
-    { label: "DIAGRAM — WEBHOOK", title: "Webhook-based flow (Skrill · Xsolla · Pinvalidda)", blocks: [{ kind: "mermaid", chart: enWebhook }] },
-    { label: "DIAGRAM — PREPAID", title: "Prepaid-card flow (Epin)", blocks: [{ kind: "mermaid", chart: enPrepaid }] },
+    { label: "DIAGRAM — WEBHOOK", title: "Webhook-based flow (PG A · PG B · PG D)", blocks: [{ kind: "mermaid", chart: enWebhook }] },
+    { label: "DIAGRAM — PREPAID", title: "Prepaid-card flow (PG C)", blocks: [{ kind: "mermaid", chart: enPrepaid }] },
     {
       label: "PROS",
       title: "Why this design is good",
@@ -261,10 +261,10 @@ const en: NoteBody = {
           tone: "destructive",
           items: [
             "Five PGs use different protocols — SOAP, REST, synchronous — so newcomers take time to grasp the whole picture.",
-            "The Pinvalidda (legacy SOAP) integration hardcodes its checksum key — technical debt with no config separation.",
+            "The PG D (legacy SOAP) integration hardcodes its secrets — technical debt with no config separation.",
             "The product cache key omits currency — products with per-country currencies can get their caches mixed up.",
-            "Epin's regular-card grant logic remains a TODO, so outside the free-coupon path the actual grant never completes.",
-            "Secret management differs per PG — Xsolla pulls dynamically from Parameter Store while Pinvalidda's sits in the code.",
+            "PG C's regular-card grant logic remains a TODO, so outside the free-coupon path the actual grant never completes.",
+            "Secret management differs per PG — PG B pulls dynamically from Parameter Store while PG D's sits in the code.",
           ],
         },
       ],
@@ -278,10 +278,10 @@ const en: NoteBody = {
           icon: Lightbulb,
           tone: "muted",
           items: [
-            "Move the Pinvalidda checksum key into a secrets manager like Parameter Store, matching Xsolla's approach.",
-            "Finish the cash-grant logic for Epin's regular-card path.",
+            "Move PG D's secrets into a secrets manager like Parameter Store, matching PG B's approach.",
+            "Finish the cash-grant logic for PG C's regular-card path.",
             "Include currency in the product cache key so caches split correctly per country/currency.",
-            "Either complete the disabled Tigo integration or fully remove the dead code if it won't be used.",
+            "Either complete the disabled PG E integration or fully remove the dead code if it won't be used.",
           ],
         },
       ],

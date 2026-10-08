@@ -70,9 +70,9 @@ const ko: NoteBody = {
           kind: "steps",
           steps: [
             { title: "레이어 구분", body: "apps는 배포 단위, packages는 공유 로직으로 나눈다. apps끼리는 서로 참조하지 않는다." },
-            { title: "의존성 선언", body: `package.json에 "@softnyx/auth-core": "workspace:*" 처럼 선언하면 pnpm이 로컬 심볼릭 링크로 연결한다.` },
+            { title: "의존성 선언", body: `package.json에 "@acme/auth-core": "workspace:*" 처럼 선언하면 pnpm이 로컬 심볼릭 링크로 연결한다.` },
             { title: "패키지 빌드", body: "각 패키지는 tsc -b로 dist를 만든다. 루트의 빌드 스크립트가 워크스페이스 전체를 순회하며 의존 순서를 해결한다." },
-            { title: "타입 해석", body: "tsconfig의 path mapping이 dist → src → apps/*/src 순서로 @softnyx/*를 찾는다." },
+            { title: "타입 해석", body: "tsconfig의 path mapping이 dist → src → apps/*/src 순서로 @acme/*를 찾는다." },
             { title: "로컬 실행", body: "서비스별 스크립트로 개별 실행하거나, Docker Compose profile로 필요한 조합만 골라 띄운다." },
             { title: "새 로직 추가", body: "2개 이상 앱에서 필요하면 packages에 만들고, 한 서비스 전용이면 apps/*/src 안에 그냥 둔다." },
           ],
@@ -170,9 +170,9 @@ const en: NoteBody = {
           kind: "steps",
           steps: [
             { title: "Layer split", body: "apps are deploy units; packages are shared logic. Apps never reference each other." },
-            { title: "Dependency declaration", body: `Declaring "@softnyx/auth-core": "workspace:*" in package.json makes pnpm wire it up as a local symlink.` },
+            { title: "Dependency declaration", body: `Declaring "@acme/auth-core": "workspace:*" in package.json makes pnpm wire it up as a local symlink.` },
             { title: "Package builds", body: "Each package builds its dist with tsc -b. The root build script walks the whole workspace resolving dependency order." },
-            { title: "Type resolution", body: "tsconfig path mapping resolves @softnyx/* in dist → src → apps/*/src order." },
+            { title: "Type resolution", body: "tsconfig path mapping resolves @acme/* in dist → src → apps/*/src order." },
             { title: "Local runs", body: "Run services individually with per-service scripts, or pick just the combination you need with Docker Compose profiles." },
             { title: "Adding new logic", body: "If 2+ apps need it, put it in packages; if it's for one service only, it just lives in apps/*/src." },
           ],

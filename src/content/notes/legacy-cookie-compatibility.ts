@@ -10,10 +10,10 @@ const koChart = `sequenceDiagram
     Auth->>Auth: 신규 쿠키용 값 생성 (JSON → AES-256-GCM 암호화, IV 매번 새로 생성)
     Auth-->>Browser: Set-Cookie (신규, HttpOnly)
 
-    Auth->>Auth: 레거시 쿠키 A용 값 생성 (JSON → DES-CBC 암호화)
+    Auth->>Auth: 레거시 쿠키 A용 값 생성 (JSON → 레거시 대칭키 암호화)
     Auth-->>Browser: Set-Cookie (레거시 A, HttpOnly)
 
-    Auth->>Auth: 레거시 쿠키 B용 값 생성 (특정 규칙으로 MD5 해시 계산 후 key=value 조합)
+    Auth->>Auth: 레거시 쿠키 B용 값 생성 (서버만 아는 값들을 조합해 해시 서명 계산 후 key=value 조합)
     Auth-->>Browser: Set-Cookie (레거시 B, HttpOnly)
 
     Note over Browser: 세 쿠키 모두 브라우저에 저장됨 - 어떤 서비스로 이동해도 로그인 상태 유지`;
@@ -27,10 +27,10 @@ const enChart = `sequenceDiagram
     Auth->>Auth: build new cookie value (JSON → AES-256-GCM, fresh IV each time)
     Auth-->>Browser: Set-Cookie (new, HttpOnly)
 
-    Auth->>Auth: build legacy cookie A value (JSON → DES-CBC)
+    Auth->>Auth: build legacy cookie A value (JSON → legacy symmetric cipher)
     Auth-->>Browser: Set-Cookie (legacy A, HttpOnly)
 
-    Auth->>Auth: build legacy cookie B value (MD5 hash by a set rule, then key=value)
+    Auth->>Auth: build legacy cookie B value (hash signature over server-only values, then key=value)
     Auth-->>Browser: Set-Cookie (legacy B, HttpOnly)
 
     Note over Browser: all three cookies stored - login state holds wherever you navigate`;
@@ -59,9 +59,9 @@ const ko: NoteBody = {
           steps: [
             { title: "신규 쿠키 값 생성", body: "로그인 성공 후 확보한 사용자 정보를 JSON으로 만들고, IV를 매번 새로 생성해 AES-256-GCM으로 암호화한다." },
             { title: "신규 쿠키 굽기", body: "Set-Cookie로 HttpOnly 신규 쿠키를 내려준다." },
-            { title: "레거시 쿠키 A 값 생성", body: "같은 사용자 정보를 옛 C# 표준과 동일한 DES-CBC 방식으로 암호화한다." },
+            { title: "레거시 쿠키 A 값 생성", body: "같은 사용자 정보를 레거시 플랫폼이 쓰던 옛 대칭키 암호화 방식으로 암호화한다." },
             { title: "레거시 쿠키 A 굽기", body: "Set-Cookie로 HttpOnly 레거시 쿠키 A를 내려준다." },
-            { title: "레거시 쿠키 B 값 생성", body: "사용자 식별값과 서버 비밀키, 주 단위 시간값을 조합해 MD5 해시를 만들고 key=value 문자열로 조합한다." },
+            { title: "레거시 쿠키 B 값 생성", body: "서버만 아는 몇 가지 값을 조합해 해시 서명을 만들고 key=value 문자열로 조합한다." },
             { title: "레거시 쿠키 B 굽기", body: "Set-Cookie로 HttpOnly 레거시 쿠키 B를 내려준다. 세 쿠키 모두 브라우저에 저장되어 어떤 서비스로 이동해도 로그인 상태가 유지된다." },
           ],
         },
@@ -74,7 +74,7 @@ const ko: NoteBody = {
         {
           kind: "keypoints",
           items: [
-            { icon: KeyRound, title: "쿠키마다 암호화 방식이 다르다", body: "신규 쿠키는 AES-256-GCM으로 굽는다. 레거시 쿠키 A는 옛 C# 표준과 바이트 단위로 동일한 DES-CBC를 쓴다. 레거시 쿠키 B는 암호화 없이 MD5 해시 서명만 붙인다." },
+            { icon: KeyRound, title: "쿠키마다 암호화 방식이 다르다", body: "신규 쿠키는 AES-256-GCM으로 굽는다. 레거시 쿠키 A는 레거시 플랫폼과 호환되는 옛 대칭키 암호화를 쓴다. 레거시 쿠키 B는 암호화 없이 해시 서명만 붙인다." },
             { icon: Tag, title: "버전 접두사로 마이그레이션 여지를 남겼다", body: "신규 쿠키 값 앞에 버전 접두사를 붙여둔다. 나중에 암호화 방식을 다시 바꿔야 할 때 이전 버전과 구분할 수 있다." },
             { icon: ShieldCheck, title: "GCM 인증 태그로 변조를 즉시 탐지한다", body: "복호화 시 태그 검증에 실패하면 바로 에러가 나고, 그 사용자는 인증 필요 상태로 취급된다." },
             { icon: EyeOff, title: "레거시 쿠키 B는 사실 서명이지 암호화가 아니다", body: "값 자체(아이디 등)는 평문으로 보이지만, 해시가 맞아야 유효한 것으로 인정돼 값만 조작해서는 통과할 수 없다." },
@@ -110,7 +110,7 @@ const ko: NoteBody = {
           tone: "destructive",
           items: [
             "쿠키를 세 개 굽고 관리해야 해서 로그인/로그아웃 로직이 그만큼 복잡해진다.",
-            "레거시 쿠키 A(DES-CBC)는 IV를 키와 동일하게 고정해서 쓴다. 매번 랜덤 IV를 쓰는 신규 쿠키보다 훨씬 약한 방식이라, 레거시 서비스가 사라지기 전까지는 계속 유지해야 하는 부채다.",
+            "레거시 쿠키 A는 고정된 값에 기반한 암호화 방식을 써서, 매번 랜덤 IV를 쓰는 신규 쿠키보다 훨씬 약하다. 구체적인 결함은 이 글에서 다루지 않지만, 레거시 서비스가 사라지기 전까지는 계속 안고 가야 하는 부채다.",
             "로그아웃 시 세 쿠키 중 하나라도 빠뜨리면 반쪽짜리 로그아웃이 될 수 있어, 삭제 로직에서 항상 세 개를 함께 관리해야 한다.",
           ],
         },
@@ -126,7 +126,7 @@ const ko: NoteBody = {
           tone: "muted",
           items: [
             "레거시 서비스들을 신규 인증 체계로 순차 이전해, 궁극적으로 레거시 쿠키 A/B 발급을 없앤다.",
-            "레거시 쿠키 B의 MD5 서명을 더 강한 해시(HMAC-SHA256 등)로 교체할 수 있는지 레거시 서비스 쪽과 협의한다.",
+            "레거시 쿠키 B의 해시 서명을 더 강한 방식(HMAC-SHA256 등)으로 교체할 수 있는지 레거시 서비스 쪽과 협의한다.",
             "쿠키 발급/삭제 로직을 한 곳에 모아, 세 종류를 빠뜨리지 않고 항상 함께 처리하도록 강제한다.",
           ],
         },
@@ -159,9 +159,9 @@ const en: NoteBody = {
           steps: [
             { title: "Build the new cookie value", body: "Turn the user info obtained after login into JSON and encrypt it with AES-256-GCM, generating a fresh IV each time." },
             { title: "Bake the new cookie", body: "Send an HttpOnly new cookie via Set-Cookie." },
-            { title: "Build legacy cookie A value", body: "Encrypt the same user info with DES-CBC, byte-for-byte identical to the old C# standard." },
+            { title: "Build legacy cookie A value", body: "Encrypt the same user info with the old symmetric cipher the legacy platform used." },
             { title: "Bake legacy cookie A", body: "Send an HttpOnly legacy cookie A via Set-Cookie." },
-            { title: "Build legacy cookie B value", body: "Combine the user identifier, a server secret, and a week-granularity timestamp into an MD5 hash, then assemble a key=value string." },
+            { title: "Build legacy cookie B value", body: "Combine a few server-only values into a hash signature, then assemble a key=value string." },
             { title: "Bake legacy cookie B", body: "Send an HttpOnly legacy cookie B via Set-Cookie. All three cookies are stored, so login state holds wherever you navigate." },
           ],
         },
@@ -174,7 +174,7 @@ const en: NoteBody = {
         {
           kind: "keypoints",
           items: [
-            { icon: KeyRound, title: "Each cookie uses a different encryption scheme", body: "The new cookie is baked with AES-256-GCM. Legacy cookie A uses DES-CBC, byte-for-byte identical to the old C# standard. Legacy cookie B has no encryption at all — just an MD5 hash signature." },
+            { icon: KeyRound, title: "Each cookie uses a different encryption scheme", body: "The new cookie is baked with AES-256-GCM. Legacy cookie A uses an old symmetric cipher kept for compatibility with the legacy platform. Legacy cookie B has no encryption at all — just a hash signature." },
             { icon: Tag, title: "A version prefix leaves room to migrate", body: "The new cookie value carries a version prefix up front, so a later change of encryption scheme can be told apart from the previous version." },
             { icon: ShieldCheck, title: "The GCM auth tag detects tampering instantly", body: "If tag verification fails on decryption, it errors immediately and that user is treated as needing authentication." },
             { icon: EyeOff, title: "Legacy cookie B is really a signature, not encryption", body: "The value itself (id, etc.) is visible in plaintext, but it's only accepted as valid when the hash matches, so tampering with the value alone won't pass." },
@@ -210,7 +210,7 @@ const en: NoteBody = {
           tone: "destructive",
           items: [
             "Baking and managing three cookies makes login/logout logic that much more complex.",
-            "Legacy cookie A (DES-CBC) fixes the IV equal to the key — much weaker than the new cookie's random IV each time, a debt that must be kept until legacy services are gone.",
+            "Legacy cookie A relies on a fixed-value encryption scheme — much weaker than the new cookie's random IV each time. The exact flaw isn't detailed here, but it's a debt that must be kept until legacy services are gone.",
             "If even one of the three cookies is missed on logout, it can be a half-logout, so the deletion logic must always manage all three together.",
           ],
         },
@@ -226,7 +226,7 @@ const en: NoteBody = {
           tone: "muted",
           items: [
             "Migrate the legacy services onto the new auth scheme one by one, ultimately dropping legacy cookies A/B.",
-            "Discuss with the legacy side whether legacy cookie B's MD5 signature can be replaced with a stronger hash (HMAC-SHA256, etc.).",
+            "Discuss with the legacy side whether legacy cookie B's hash signature can be replaced with a stronger scheme (HMAC-SHA256, etc.).",
             "Consolidate cookie issue/delete logic in one place so all three types are always handled together without omission.",
           ],
         },

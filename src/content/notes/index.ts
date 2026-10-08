@@ -6,7 +6,7 @@ import legacyCookieCompatibility from "./legacy-cookie-compatibility";
 import migrationFlow from "./migration-flow";
 import snsLinkingFlow from "./sns-linking-flow";
 import crossChainBridge from "./cross-chain-bridge";
-import kingdomscanIndexer from "./kingdomscan-indexer";
+import chainIndexer from "./chain-indexer";
 import monorepoStructure from "./monorepo-structure";
 import randomBoxVrf from "./random-box-vrf";
 import nftMintAndPurchaseSync from "./nft-mint-and-purchase-sync";
@@ -23,7 +23,7 @@ export const noteContent: Record<string, NoteContent> = {
   "migration-flow": migrationFlow,
   "sns-linking-flow": snsLinkingFlow,
   "cross-chain-bridge": crossChainBridge,
-  "kingdomscan-indexer": kingdomscanIndexer,
+  "chain-indexer": chainIndexer,
   "monorepo-structure": monorepoStructure,
   "random-box-vrf": randomBoxVrf,
   "nft-mint-and-purchase-sync": nftMintAndPurchaseSync,

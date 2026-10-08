@@ -5,8 +5,8 @@ const koChart = `sequenceDiagram
     autonumber
     participant User as 사용자 (지갑/Openfort)
     participant Backend as 백엔드
-    participant Scan as kingdomScan
-    participant Chain as KingdomStoryReward 컨트랙트
+    participant Scan as 인덱싱 허브
+    participant Chain as Reward 컨트랙트
     participant Worker as 백엔드 이벤트 잡
 
     User->>Backend: POST /v2/transactions/:txnType (제거됨)
@@ -28,8 +28,8 @@ const enChart = `sequenceDiagram
     autonumber
     participant User as User (wallet/Openfort)
     participant Backend as Backend
-    participant Scan as kingdomScan
-    participant Chain as KingdomStoryReward contract
+    participant Scan as indexing hub
+    participant Chain as Reward contract
     participant Worker as Backend event job
 
     User->>Backend: POST /v2/transactions/:txnType (removed)

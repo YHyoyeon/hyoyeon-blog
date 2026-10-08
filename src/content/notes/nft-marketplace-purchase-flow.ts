@@ -5,7 +5,7 @@ const koChart = `sequenceDiagram
     autonumber
     participant Buyer as 구매자 지갑
     participant Chain as 온체인 (Market 컨트랙트)
-    participant Scan as kingdomScan (크롤러)
+    participant Scan as 인덱싱 허브 (크롤러)
     participant Backend as 백엔드 (트랜잭션 인덱서)
     participant DB as 백엔드 DB
 
@@ -30,7 +30,7 @@ const enChart = `sequenceDiagram
     autonumber
     participant Buyer as Buyer wallet
     participant Chain as On-chain (Market contract)
-    participant Scan as kingdomScan (crawler)
+    participant Scan as indexing hub (crawler)
     participant Backend as Backend (transaction indexer)
     participant DB as Backend DB
 

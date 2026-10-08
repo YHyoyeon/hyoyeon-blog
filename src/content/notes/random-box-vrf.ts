@@ -6,10 +6,10 @@ const koChart = `sequenceDiagram
     participant User as 사용자 지갑
     participant RB as RandomBox 컨트랙트
     participant VRF as VRF 컨트랙트 (자체 구현)
-    participant Worker as kingdomScan 마스터 지갑 워커
+    participant Worker as 인덱싱 허브 마스터 지갑 워커
 
     User->>RB: OpenBox(tokenId, boxRarity, signature)
-    RB-->>RB: 서명 검증 (kingdomScan 마스터 키)
+    RB-->>RB: 서명 검증 (인덱싱 허브 마스터 키)
     RB->>VRF: requestRandomWords(...)
     VRF-->>VRF: RequestStatus 저장 (fulfilled=false)
 
@@ -29,10 +29,10 @@ const enChart = `sequenceDiagram
     participant User as User wallet
     participant RB as RandomBox contract
     participant VRF as VRF contract (home-built)
-    participant Worker as kingdomScan master-wallet worker
+    participant Worker as indexing-hub master-wallet worker
 
     User->>RB: OpenBox(tokenId, boxRarity, signature)
-    RB-->>RB: verify signature (kingdomScan master key)
+    RB-->>RB: verify signature (indexing-hub master key)
     RB->>VRF: requestRandomWords(...)
     VRF-->>VRF: store RequestStatus (fulfilled=false)
 

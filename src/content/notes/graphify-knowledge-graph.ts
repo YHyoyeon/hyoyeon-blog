@@ -25,16 +25,16 @@ graphify src --directed
 # 코드가 바뀐 뒤 증분 갱신 (바뀐 파일만 재추출, 구조는 무료)
 graphify src --update
 
-# ❌ 한글 프로즈 → 노이즈 ("PCS"가 PcsTooManyRequestsException에 오매칭)
-graphify query "혈당 예측은 어떻게 AI service와 PCS로 흘러가나?"
+# ❌ 한글 프로즈 → 노이즈 ("ExtAPI"가 ExternalApiThrottleException에 오매칭)
+graphify query "도메인 A 예측은 어떻게 AI service와 ExtAPI로 흘러가나?"
 
 # ✅ 영문 심볼로 확장 → 정타 (소스 라인까지)
-graphify query "GlucoseService GlucoseDataFetcher AiService \\
-  PatientServerService afterPredict requestGlucosePrediction" --budget 3000
+graphify query "ServiceA DataFetcherA AiService \\
+  ServiceB afterPredict requestPrediction" --budget 3000
 
 # 두 개념 사이 최단 경로 / 단일 노드 설명
-graphify path "GlucoseService" "AiService"
-graphify explain "JourneyCompletionProvider"`;
+graphify path "ServiceA" "AiService"
+graphify explain "ProviderB"`;
 
 const enCommands = `# First build — build it directed, so caller→callee direction survives
 graphify src --directed
@@ -42,16 +42,16 @@ graphify src --directed
 # Incremental refresh after code changes (only changed files; structure is free)
 graphify src --update
 
-# ❌ Korean prose → noise ("PCS" mis-matches PcsTooManyRequestsException)
-graphify query "혈당 예측은 어떻게 AI service와 PCS로 흘러가나?"
+# ❌ Korean prose → noise ("ExtAPI" mis-matches ExternalApiThrottleException)
+graphify query "도메인 A 예측은 어떻게 AI service와 ExtAPI로 흘러가나?"
 
 # ✅ Expanded into English symbols → direct hits, down to source lines
-graphify query "GlucoseService GlucoseDataFetcher AiService \\
-  PatientServerService afterPredict requestGlucosePrediction" --budget 3000
+graphify query "ServiceA DataFetcherA AiService \\
+  ServiceB afterPredict requestPrediction" --budget 3000
 
 # Shortest path between two concepts / explain a single node
-graphify path "GlucoseService" "AiService"
-graphify explain "JourneyCompletionProvider"`;
+graphify path "ServiceA" "AiService"
+graphify explain "ProviderB"`;
 
 const ko: NoteBody = {
   intro:
@@ -108,12 +108,12 @@ const ko: NoteBody = {
             {
               icon: Coins,
               title: "구조 그래프 2,019파일 = 입력 토큰 0",
-              body: "LLM을 쓰지 않으니 15k 노드 그래프가 말 그대로 공짜다. 토큰이 드는 건 선택한 도메인에만 돌리는 시맨틱 딥패스뿐 — glucose 34파일 245,693 · journey 37파일 251,704 · docs 3파일 58,125, 누적 555,522 토큰.",
+              body: "LLM을 쓰지 않으니 15k 노드 그래프가 말 그대로 공짜다. 토큰이 드는 건 선택한 도메인에만 돌리는 시맨틱 딥패스뿐 — 도메인 A 34파일 245,693 · 도메인 B 37파일 251,704 · docs 3파일 58,125, 누적 555,522 토큰.",
             },
             {
               icon: Search,
               title: "질의 1건: 약 51,800 → 4,000 토큰 (약 13×)",
-              body: "\"혈당 예측이 GlucoseService에서 AI service·PCS로 어떻게 흘러가나\"를 직접 조사하면 관련 6파일 정독만 약 51,791 토큰에 grep 왕복이 더 붙는다. 그래프는 1회 트래버스로 약 4,000 토큰, tool call 1회. 게다가 getGlucoseDataByDate ≈ execute 같은 마이그레이션 대응과 @deprecated 경고가 덤으로 나온다.",
+              body: "\"도메인 A 예측이 ServiceA에서 AI service·ExtAPI로 어떻게 흘러가나\"를 직접 조사하면 관련 6파일 정독만 약 51,791 토큰에 grep 왕복이 더 붙는다. 그래프는 1회 트래버스로 약 4,000 토큰, tool call 1회. 게다가 getDataByDate ≈ execute 같은 마이그레이션 대응과 @deprecated 경고가 덤으로 나온다.",
             },
             {
               icon: Timer,
@@ -180,7 +180,7 @@ const ko: NoteBody = {
           icon: AlertTriangle,
           tone: "destructive",
           items: [
-            "한글 질의가 사실상 안 된다 — 매처가 case-fold 부분일치 + IDF뿐이라 \"PCS\"가 PcsTooManyRequestsException에 오매칭된다. 질문을 영문 심볼로 번역하는 건 결국 사람 몫이다.",
+            "한글 질의가 사실상 안 된다 — 매처가 case-fold 부분일치 + IDF뿐이라 \"ExtAPI\"가 ExternalApiThrottleException에 오매칭된다. 질문을 영문 심볼로 번역하는 건 결국 사람 몫이다.",
             "그래프는 스냅샷이라 낡는다 — 라이브 코드가 항상 정본이고, 중요한 판단 전에는 --update로 갱신하거나 실제 파일로 재확인해야 한다.",
             "수동 시맨틱 딥패스는 노드 ID가 정확히 맞아야 붙는다 — 서브에이전트가 만든 엣지 ID가 AST 노드 ID와 어긋나면 dangling으로 조용히 드롭된다. 실제 노드 ID를 뽑아 예시로 넘겨야 했다.",
             "dangling 엣지 경고가 겁을 준다 — 대부분은 node_modules·TypeORM·NestJS 같은 외부 심볼 참조라 빌드 시 드롭되고 graph.json엔 영향이 없는데, 헬스체크 출력만 보면 그래프가 깨진 것처럼 보인다.",
@@ -201,7 +201,7 @@ const ko: NoteBody = {
           items: [
             "갱신을 자동화한다 — 지금은 사람이 --update를 기억해야 한다. 구조 변화가 큰 머지 이후에 증분 갱신이 돌게 하면 스냅샷 낡음 문제가 대부분 사라진다.",
             "한글 질문 → 영문 심볼 확장을 앞단에서 처리한다. 매처를 못 고치면 질의 입력을 고치는 쪽이 현실적이다.",
-            "시맨틱 딥패스 대상 도메인을 넓힌다 — 지금은 glucose·journey 둘뿐이다. 질의가 반복되는 도메인부터 손익분기(약 5질의)를 넘길 곳을 골라 늘린다.",
+            "시맨틱 딥패스 대상 도메인을 넓힌다 — 지금은 도메인 A·도메인 B 둘뿐이다. 질의가 반복되는 도메인부터 손익분기(약 5질의)를 넘길 곳을 골라 늘린다.",
             "공유 캐시의 히트율을 관측한다 — 빌드 로그의 \"N files hit from cache\"를 기록해 두면, 캐시를 커밋한 판단이 실제로 팀 토큰을 아꼈는지 사후에 검증할 수 있다.",
           ],
         },
@@ -265,12 +265,12 @@ const en: NoteBody = {
             {
               icon: Coins,
               title: "2,019 files of structural graph = 0 input tokens",
-              body: "No LLM, so a 15k-node graph is literally free. Tokens only go to the semantic deep pass on domains you pick — glucose 34 files / 245,693, journey 37 files / 251,704, docs 3 files / 58,125, for 555,522 cumulative.",
+              body: "No LLM, so a 15k-node graph is literally free. Tokens only go to the semantic deep pass on domains you pick — domain A 34 files / 245,693, domain B 37 files / 251,704, docs 3 files / 58,125, for 555,522 cumulative.",
             },
             {
               icon: Search,
               title: "One query: ~51,800 → ~4,000 tokens (~13×)",
-              body: "Answering \"how does glucose prediction flow from GlucoseService into the AI service and PCS\" by hand meant reading six files — about 51,791 tokens, plus grep round-trips. One graph traversal answered it in ~4,000 tokens and a single tool call, and threw in the migration mapping (getGlucoseDataByDate ≈ execute) and @deprecated warnings for free.",
+              body: "Answering \"how does domain A prediction flow from ServiceA into the AI service and ExtAPI\" by hand meant reading six files — about 51,791 tokens, plus grep round-trips. One graph traversal answered it in ~4,000 tokens and a single tool call, and threw in the migration mapping (getDataByDate ≈ execute) and @deprecated warnings for free.",
             },
             {
               icon: Timer,
@@ -337,7 +337,7 @@ const en: NoteBody = {
           icon: AlertTriangle,
           tone: "destructive",
           items: [
-            "Korean queries effectively don't work — with only case-fold substring matching and IDF, \"PCS\" mis-matches PcsTooManyRequestsException. Translating the question into English symbols stays a human job.",
+            "Korean queries effectively don't work — with only case-fold substring matching and IDF, \"ExtAPI\" mis-matches ExternalApiThrottleException. Translating the question into English symbols stays a human job.",
             "The graph is a snapshot, so it goes stale — live code is always the source of truth, and anything important needs an --update or a re-check against the real files.",
             "A manual semantic deep pass only lands if node IDs match exactly — edge IDs produced by a subagent that don't line up with AST node IDs are silently dropped as dangling. I had to pull real node IDs and pass them as examples.",
             "The dangling-edge warning is scarier than it is — most of it is external symbols (node_modules, TypeORM, NestJS) that get dropped at build time with no effect on graph.json, but the health-check output reads like a broken graph.",
@@ -358,7 +358,7 @@ const en: NoteBody = {
           items: [
             "Automate the refresh — today someone has to remember --update. Running the incremental pass after structurally significant merges would erase most of the staleness problem.",
             "Handle Korean-to-symbol expansion at the front door. If the matcher can't be fixed, fixing the query input is the practical move.",
-            "Widen the semantic deep pass beyond glucose and journey — pick the next domains by which ones get asked about often enough to clear the ~5-query break-even.",
+            "Widen the semantic deep pass beyond domain A and domain B — pick the next domains by which ones get asked about often enough to clear the ~5-query break-even.",
             "Track shared-cache hit rate — logging the \"N files hit from cache\" line would let us verify after the fact that committing the cache really did save the team tokens.",
           ],
         },
