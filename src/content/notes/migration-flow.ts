@@ -128,7 +128,7 @@ const ko: NoteBody = {
           items: [
             { icon: ListChecks, title: "마이그레이션 상태는 3가지뿐이다", body: "NA(해당 없음)·COMPLETED(완료)·FAILED(실패)로만 관리한다. PENDING 같은 중간 상태는 없다." },
             { icon: UserCog, title: "사용자 타입(NEW/OLD)이 우선이고, 레코드 없음은 예외 케이스다", body: "레코드가 있으면 사용자 타입 필드로 먼저 판단한다. 레코드 자체가 없을 때만 구 유저로 암묵 처리한다." },
-            { icon: ShieldAlert, title: "차단 도메인 초기화는 일부 진입점에서만 실행된다", body: "로그인 시도·상태 조회 경로에서는 자동으로 초기화되지만, 마이그레이션 처리 자체나 비밀번호 로그인 경로는 이 검사를 거치지 않는다." },
+            { icon: ShieldAlert, title: "차단 도메인 정책의 적용 지점을 일관되게 맞춰야 한다", body: "로그인·상태 조회·마이그레이션 등 여러 진입점에 정책 검사가 균일하게 적용되도록 맞추는 것이 설계상 과제였다." },
             { icon: ShieldCheck, title: "이메일 인증에는 엄격한 레이트리밋이 걸려 있다", body: "24시간 10회, 재전송 30초 간격, 인증코드 5분 유효, 5회 실패 시 30분 잠금 — 모두 Redis 기반으로 관리한다." },
             { icon: Link2, title: "1 사용자 = 1 firebase 계정이 원칙, SNS 연동은 여러 개 허용", body: "이메일·firebase 계정은 한 사용자에 하나만 연결되지만, Google·Facebook·Apple 같은 SNS 연동은 여러 개를 동시에 허용하고 firebase 쪽을 기준으로 동기화한다." },
           ],
@@ -161,9 +161,9 @@ const ko: NoteBody = {
           icon: AlertTriangle,
           tone: "destructive",
           items: [
-            "차단 도메인 초기화가 일부 진입점에서만 실행돼, 경로에 따라 정책이 일관되게 적용되지 않는다.",
+            "차단 도메인 정책을 모든 진입점에 균일하게 적용하도록 맞출 여지가 있다.",
             "이미 레코드가 있는 사용자는 마이그레이션을 다시 완료해도 상태가 갱신되지 않는다 — 의도(생성 또는 업데이트)와 실제 동작(생성만)이 다르다.",
-            "재시도 횟수(retry_count) 필드가 스키마에는 있지만 실제로는 어디서도 증가하지 않는다 — 죽은 필드로 남아 있다.",
+            "재시도 횟수(retry_count) 필드가 스키마에 있지만 실제 재시도 로직과 연결돼 있지 않아 정리가 필요하다.",
             "마이그레이션 레코드를 읽고 쓰는 구간에 동시성 잠금이 없어, 이론적으로는 동시 요청 시 경쟁 상태가 발생할 수 있다.",
           ],
         },
@@ -230,7 +230,7 @@ const en: NoteBody = {
           items: [
             { icon: ListChecks, title: "There are only three migration states", body: "Managed as NA (not applicable), COMPLETED, and FAILED only. There's no intermediate state like PENDING." },
             { icon: UserCog, title: "User type (NEW/OLD) comes first; a missing record is the exception case", body: "When a record exists, the user-type field decides first. Only when there's no record at all is the user implicitly treated as old." },
-            { icon: ShieldAlert, title: "Blocked-domain reset runs at only some entry points", body: "It resets automatically on the login-attempt and status-query paths, but the migration handler itself and the password-login path don't go through this check." },
+            { icon: ShieldAlert, title: "The blocked-domain policy needs consistent enforcement points", body: "Making the policy check apply uniformly across entry points — login, status query, migration — was a design task." },
             { icon: ShieldCheck, title: "Email verification has strict rate limits", body: "10 per 24h, 30s between resends, code valid 5 minutes, 30-minute lock after 5 failures — all managed in Redis." },
             { icon: Link2, title: "1 user = 1 firebase account by rule; multiple SNS links allowed", body: "Email and firebase account link one-to-one per user, but SNS links like Google/Facebook/Apple are allowed in multiples at once and synced with firebase as the source of truth." },
           ],
@@ -263,9 +263,9 @@ const en: NoteBody = {
           icon: AlertTriangle,
           tone: "destructive",
           items: [
-            "Blocked-domain reset runs at only some entry points, so the policy isn't applied consistently across paths.",
+            "There's room to apply the blocked-domain policy uniformly across all entry points.",
             "For users who already have a record, re-completing migration doesn't update the status — the intent (create or update) differs from the actual behavior (create only).",
-            "The retry_count field exists in the schema but is never actually incremented anywhere — it remains a dead field.",
+            "The retry_count field exists in the schema but isn't wired to real retry logic, so it needs cleanup.",
             "There's no concurrency lock across the read-then-write of the migration record, so concurrent requests could, in theory, race.",
           ],
         },

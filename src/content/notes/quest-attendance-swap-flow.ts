@@ -49,7 +49,7 @@ const enChart = `sequenceDiagram
 
 const ko: NoteBody = {
   intro:
-    "지금은 서비스되지 않지만, 마켓플레이스 전반과 동일한 '서명 발급 → 사용자 제출 → 오프체인 정산' 패턴을 재사용했던 출석체크·미션·스왑 기능의 마지막 구현을 git 히스토리에서 복원해 정리했습니다.",
+    "지금은 서비스되지 않지만, 마켓플레이스 전반과 동일한 '서명 발급 → 사용자 제출 → 오프체인 정산' 패턴을 재사용했던 출석체크·미션·스왑 기능의 구조를 정리했습니다.",
   sections: [
     {
       label: "PURPOSE — 목적",
@@ -58,7 +58,7 @@ const ko: NoteBody = {
         {
           kind: "prose",
           paragraphs: [
-            "사쿠루 네트워크 관련 기능 삭제 작업 때 출석체크·미션·스왑·초대·래플 관련 라우트·화면·잡이 통째로 삭제되었습니다. 온체인 컨트랙트 자체는 여전히 배포되어 있지만, 현재 백엔드·프론트엔드 어디에서도 이를 호출하는 코드가 없습니다. 다만 이 기능들이 썼던 연동 패턴 — 인덱싱 허브가 서명을 발급하고, 사용자 지갑이 그 서명으로 온체인 트랜잭션을 쏘고, 이벤트를 감지해 오프체인에서 정산하는 구조 — 은 마켓플레이스 구매·브릿지·랜덤박스와 동일한 인프라를 재사용한 사례라 아키텍처 관점에서 기록해 둘 가치가 있습니다.",
+            "출석체크·미션·스왑·초대·래플 기능은 이후 서비스에서 제거되었습니다. 다만 이 기능들이 썼던 연동 패턴 — 서버가 서명을 발급하고, 사용자 지갑이 그 서명으로 온체인 트랜잭션을 쏘고, 이벤트를 감지해 오프체인에서 정산하는 구조 — 은 마켓플레이스 구매·브릿지·랜덤박스와 동일한 인프라를 재사용한 사례라 아키텍처 관점에서 기록해 둘 가치가 있습니다.",
           ],
         },
       ],
@@ -96,12 +96,12 @@ const ko: NoteBody = {
             { icon: ArrowLeftRight, title: "스왑은 DEX가 아니라 고정 비율 내부 재화 교환이었다", body: "시장가·유동성과 무관하게, 운영 설정값(최소/최대 한도, 스왑 비율) 기준으로 정산됐다." },
             { icon: CalendarCheck, title: "출석체크만 서명 없이 타임스탬프만 남기는 경로를 썼다", body: "그날 출석했다는 사실 자체를 온체인에 남기는 용도에 가까웠고, 다른 기능과 달리 서명 검증이 없었다." },
             { icon: ListChecks, title: "미션 보상은 거의 전부 DB 카운터 기반이었다", body: "온체인 증빙이 필요한 건 발행·소각·NFT 구매·초대·스왑·일일 출석처럼 체인에서 검증 가능한 행동뿐이었다." },
-            { icon: Trash2, title: "기능 자체가 완전히 제거된 상태다", body: "삭제 이전에도 관련 라우트가 비활성화 미들웨어로 막혀 있던 흔적이 있어, 실질적 서비스 중단은 최종 삭제보다 앞섰을 가능성이 있다." },
+            { icon: Trash2, title: "기능 자체가 이후 제거되었다", body: "최종 제거 전에도 관련 라우트가 단계적으로 비활성화되는 과정을 거쳤다." },
           ],
         },
       ],
     },
-    { label: "DIAGRAM — 시퀀스", title: "공통 연동 시퀀스 (제거됨, 히스토리 기준)", blocks: [{ kind: "mermaid", chart: koChart }] },
+    { label: "DIAGRAM — 시퀀스", title: "공통 연동 시퀀스 (제거됨)", blocks: [{ kind: "mermaid", chart: koChart }] },
     {
       label: "PROS — 장점",
       title: "이 구조가 (설계 당시) 좋았던 이유",
@@ -126,9 +126,9 @@ const ko: NoteBody = {
           icon: AlertTriangle,
           tone: "destructive",
           items: [
-            "컨트랙트는 여전히 배포되어 있는데 호출 경로가 전부 사라져, 코드베이스에 죽은 참조(고아 모달 컴포넌트, 미사용 훅 파일)가 남아있다.",
-            "삭제가 커밋 두 개로 나뉘어 이루어져 있어, 정말 완전히 제거됐는지 추적하려면 히스토리를 여러 번 확인해야 한다.",
-            "스왑 관련 시세 오라클이 실제로는 아무 데서도 호출되지 않는데 코드만 살아있어, 나중에 보는 사람이 현재도 쓰이는 기능으로 오해하기 쉽다.",
+            "온체인 컨트랙트는 한 번 배포되면 남지만 호출 경로만 제거하면 코드베이스에 죽은 참조가 남기 쉽다 — 정리 범위를 명확히 해야 한다.",
+            "기능 제거를 여러 단계로 나눠 진행하면, 어디까지 제거됐는지 추적하기 어려워진다.",
+            "함께 쓰이던 보조 로직(예: 시세 계산)이 호출부만 사라진 채 남으면, 나중에 보는 사람이 현재도 쓰이는 기능으로 오해하기 쉽다.",
           ],
         },
       ],
@@ -154,7 +154,7 @@ const ko: NoteBody = {
 
 const en: NoteBody = {
   intro:
-    "No longer in service, but worth recording: the last implementation of the attendance, quest, and swap features — reconstructed from git history — which reused the same 'issue signature → user submits → settle off-chain' pattern as the rest of the marketplace.",
+    "No longer in service, but worth recording: the attendance, quest, and swap features, which reused the same 'issue signature → user submits → settle off-chain' pattern as the rest of the marketplace.",
   sections: [
     {
       label: "PURPOSE",
@@ -163,7 +163,7 @@ const en: NoteBody = {
         {
           kind: "prose",
           paragraphs: [
-            "During the removal of the Sakuru-network features, the attendance, quest, swap, invite, and raffle routes, screens, and jobs were deleted wholesale. The on-chain contract is still deployed, but nothing in today's backend or front end calls it. Still, the integration pattern these features used — the indexing hub issues a signature, the user's wallet fires an on-chain transaction with it, and events are detected and settled off-chain — reused the exact same infrastructure as marketplace purchases, the bridge, and the loot box, which makes it worth recording from an architecture standpoint.",
+            "The attendance, quest, swap, invite, and raffle features were later removed from the service. Still, the integration pattern these features used — a server issues a signature, the user's wallet fires an on-chain transaction with it, and events are detected and settled off-chain — reused the exact same infrastructure as marketplace purchases, the bridge, and the loot box, which makes it worth recording from an architecture standpoint.",
           ],
         },
       ],
@@ -201,12 +201,12 @@ const en: NoteBody = {
             { icon: ArrowLeftRight, title: "The swap was a fixed-rate internal exchange, not a DEX", body: "Independent of market price or liquidity, it settled against operator settings (min/max limits, swap ratio)." },
             { icon: CalendarCheck, title: "Only attendance used a signature-free, timestamp-only path", body: "It was closer to leaving on-chain proof that the user showed up that day, and unlike the other features it had no signature verification." },
             { icon: ListChecks, title: "Quest rewards were almost entirely DB-counter based", body: "On-chain evidence was needed only for chain-verifiable actions: mint, burn, NFT purchase, invite, swap, and daily attendance." },
-            { icon: Trash2, title: "The feature has been completely removed", body: "There are traces of the routes being blocked by a disable middleware even before deletion, so the effective shutdown may have preceded the final removal." },
+            { icon: Trash2, title: "The feature was later removed", body: "Before the final removal, the routes went through a staged disabling as well." },
           ],
         },
       ],
     },
-    { label: "DIAGRAM", title: "Shared integration sequence (removed; from history)", blocks: [{ kind: "mermaid", chart: enChart }] },
+    { label: "DIAGRAM", title: "Shared integration sequence (removed)", blocks: [{ kind: "mermaid", chart: enChart }] },
     {
       label: "PROS",
       title: "Why this design was good (at design time)",
@@ -231,9 +231,9 @@ const en: NoteBody = {
           icon: AlertTriangle,
           tone: "destructive",
           items: [
-            "The contract is still deployed while every call path is gone, leaving dead references in the codebase (orphaned modal components, unused hook files).",
-            "The deletion was split across two commits, so verifying it was truly complete means checking the history more than once.",
-            "The swap price oracle is never called anywhere, yet its code survives — easy for a later reader to mistake for a live feature.",
+            "An on-chain contract persists once deployed, so removing only the call paths tends to leave dead references in the codebase — the cleanup scope has to be explicit.",
+            "Removing a feature in several stages makes it harder to track how far the removal actually went.",
+            "Supporting logic used alongside it (e.g. price calculation) left in place with only its callers gone is easy for a later reader to mistake for a live feature.",
           ],
         },
       ],

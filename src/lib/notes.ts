@@ -134,8 +134,8 @@ const entries: NoteMeta[] = [
   {
     slug: "random-box-vrf",
     title: {
-      ko: "랜덤박스(가챠) 확률 시스템과 'VRF'의 실체",
-      en: "Gacha loot boxes and what 'VRF' really is",
+      ko: "랜덤박스(가챠) 확률 시스템과 'VRF'라는 이름의 난수",
+      en: "Gacha loot boxes and a pseudo-VRF pattern",
     },
     description: {
       ko: "이름은 VRF지만 실제로는 오프체인 워커가 난수를 만드는 온체인 가챠 구조",

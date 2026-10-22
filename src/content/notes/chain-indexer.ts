@@ -76,7 +76,7 @@ const ko: NoteBody = {
             { title: "1단계: 이벤트 크롤러", body: "마지막으로 처리한 블록 이후부터 최신 블록(승인 대기 블록 수 제외) 구간의 이벤트를 조회하고, 트랜잭션 원문·영수증을 해시 기준으로 upsert한다." },
             { title: "블록 범위·속도 자동 조절", body: "RPC 제공자의 블록 범위 제한에 걸리면 다음 시도부터 범위를 절반으로 줄인다. 최신 블록과 많이 벌어지면(예: 15분 이상) 폴링 간격을 짧게 당긴다." },
             { title: "2단계: 후처리 크롤러", body: "아직 후처리 안 된 트랜잭션을 조회해 로그를 컨트랙트 ABI로 디코딩하고, mint·burn·transfer 같은 사람이 읽을 수 있는 이력으로 저장한다." },
-            { title: "서명 허브 겸임", body: "여러 체인의 운영자 개인키를 메모리에 들고 있다가, REST 요청이 오면 민팅·거래·브릿지 등 다양한 EIP-712 서명을 즉석에서 만들어 응답한다." },
+            { title: "서명 허브 겸임", body: "여러 체인의 운영자 서명 권한을 갖고 있다가, REST 요청이 오면 민팅·거래·브릿지 등 다양한 EIP-712 서명을 즉석에서 만들어 응답한다." },
             { title: "운영자 워커 겸임", body: "별도 반복 타이머로 돌면서 난수 이행, 브릿지 민팅, 배치 송금, 만료 오퍼 정리 같은 운영자 전용 후속 조치를 대신 실행한다." },
           ],
         },
@@ -89,7 +89,7 @@ const ko: NoteBody = {
         {
           kind: "keypoints",
           items: [
-            { icon: Layers, title: "이름은 인덱서지만 실제로는 3가지 역할을 겸한다", body: "체인 이벤트를 긁어와 저장하는 인덱서, 운영자 개인키로 EIP-712 서명을 대신 만들어주는 서명 허브, 난수 이행·브릿지 민팅 같은 후속 작업을 처리하는 운영자 워커가 한 프로세스 안에 함께 있다." },
+            { icon: Layers, title: "이름은 인덱서지만 실제로는 3가지 역할을 겸한다", body: "체인 이벤트를 긁어와 저장하는 인덱서, 운영자 서명 권한으로 EIP-712 서명을 대신 만들어주는 서명 허브, 난수 이행·브릿지 민팅 같은 후속 작업을 처리하는 운영자 워커가 한 프로세스 안에 함께 있다." },
             { icon: ScanLine, title: "컨트랙트마다 완전히 독립된 크롤링 루프를 돈다", body: "캐릭터NFT·아이템NFT·마켓·리워드·토큰·랜덤박스 등 감시 대상마다 각자 마지막 처리 블록을 따로 기억한다. 한 컨트랙트가 밀려도 다른 컨트랙트는 영향받지 않는다." },
             { icon: RefreshCw, title: "2단계 크롤링으로 책임을 분리했다", body: "1단계(이벤트 크롤러)는 체인에서 데이터를 놓치지 않고 가져오는 데만 집중하고, 2단계(후처리 크롤러)는 원본을 사람이 읽을 수 있는 이력으로 해석하는 데만 집중한다." },
             { icon: KeyRound, title: "같은 원본을 소비자마다 다른 목적으로 다시 읽는다", body: "마켓 API 서버가 같은 원본 트랜잭션 저장소를 별도 폴링 루프로 직접 읽어, 인덱서의 '범용 활동 이력'과는 다른 '판매 체결·오퍼 취소' 같은 비즈니스 상태로 재해석한다." },
@@ -126,7 +126,7 @@ const ko: NoteBody = {
           tone: "destructive",
           items: [
             "인덱서·서명 허브·운영자 워커가 한 프로세스에 묶여 있어, 배포·장애 대응 시 셋을 분리해서 다루기 어렵다.",
-            "서명 허브가 운영자 개인키를 메모리에 들고 있다 — 이 프로세스 하나가 여러 체인의 민팅·거래·브릿지 서명 권한을 전부 쥐고 있는 셈이다.",
+            "서명 기능을 한 프로세스가 겸하면, 그 프로세스가 여러 체인의 서명 권한을 한데 쥐는 단일 신뢰 지점이 되기 쉽다.",
             "인덱서와 마켓 서버가 같은 원본을 각자 따로 디코딩한다 — 이벤트 처리 로직을 고칠 때 어느 쪽 소비자를 위한 변경인지 항상 구분해야 한다.",
           ],
         },
@@ -176,7 +176,7 @@ const en: NoteBody = {
             { title: "Stage 1: event crawler", body: "Query events from the last processed block up to the latest (minus confirmation-wait blocks) and upsert transaction bodies and receipts keyed by hash." },
             { title: "Auto-tuned block range and pace", body: "If the RPC provider's block-range limit is hit, the range is halved from the next attempt. When far behind the tip (e.g. 15+ minutes), the polling interval tightens." },
             { title: "Stage 2: post-processing crawler", body: "Fetch not-yet-processed transactions, decode their logs with the contract ABI, and store human-readable history like mint, burn, and transfer." },
-            { title: "Signing hub on the side", body: "It holds operator private keys for several chains in memory and, on REST requests, produces various EIP-712 signatures — minting, trades, bridging — on the spot." },
+            { title: "Signing hub on the side", body: "It holds signing authority for several chains and, on REST requests, produces various EIP-712 signatures — minting, trades, bridging — on the spot." },
             { title: "Operator worker on the side", body: "On separate repeating timers it executes operator-only follow-ups: randomness fulfillment, bridge minting, batch transfers, expired-offer cleanup." },
           ],
         },
@@ -189,7 +189,7 @@ const en: NoteBody = {
         {
           kind: "keypoints",
           items: [
-            { icon: Layers, title: "Called an indexer, but it wears three hats", body: "An indexer that scrapes and stores chain events, a signing hub that produces EIP-712 signatures with operator private keys, and an operator worker that handles follow-ups like randomness fulfillment and bridge minting — all in one process." },
+            { icon: Layers, title: "Called an indexer, but it wears three hats", body: "An indexer that scrapes and stores chain events, a signing hub that produces EIP-712 signatures with operator signing authority, and an operator worker that handles follow-ups like randomness fulfillment and bridge minting — all in one process." },
             { icon: ScanLine, title: "Each contract runs a fully independent crawl loop", body: "Every watched target — character NFT, item NFT, market, reward, token, loot box — remembers its own last processed block. One contract falling behind doesn't affect the others." },
             { icon: RefreshCw, title: "Two-stage crawling separates responsibilities", body: "Stage 1 (event crawler) focuses only on fetching data from the chain without missing anything; stage 2 (post-processor) focuses only on interpreting the raw data into human-readable history." },
             { icon: KeyRound, title: "The same raw data is re-read by different consumers for different ends", body: "The market API server reads the same raw transaction store with its own polling loop, reinterpreting it into business states like 'sale settled' or 'offer canceled' — distinct from the indexer's general activity history." },
@@ -226,7 +226,7 @@ const en: NoteBody = {
           tone: "destructive",
           items: [
             "Indexer, signing hub, and operator worker are bound into one process — hard to handle separately for deploys and incident response.",
-            "The signing hub keeps operator private keys in memory — this single process effectively holds all minting/trade/bridge signing authority for several chains.",
+            "When one process also handles signing, it tends to become a single trust point concentrating signing authority across several chains.",
             "The indexer and market server each decode the same raw data separately — every change to event-handling logic must be tagged for the right consumer.",
           ],
         },

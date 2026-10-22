@@ -110,7 +110,7 @@ const ko: NoteBody = {
           tone: "destructive",
           items: [
             "쿠키를 세 개 굽고 관리해야 해서 로그인/로그아웃 로직이 그만큼 복잡해진다.",
-            "레거시 쿠키 A는 고정된 값에 기반한 암호화 방식을 써서, 매번 랜덤 IV를 쓰는 신규 쿠키보다 훨씬 약하다. 구체적인 결함은 이 글에서 다루지 않지만, 레거시 서비스가 사라지기 전까지는 계속 안고 가야 하는 부채다.",
+            "레거시 쿠키 A는 레거시 호환을 위해 옛 암호화 방식을 유지해야 해서, 랜덤 IV를 쓰는 신규 쿠키만큼 강하지 않다 — 레거시 서비스가 사라질 때까지 안고 가는 호환성 부채다.",
             "로그아웃 시 세 쿠키 중 하나라도 빠뜨리면 반쪽짜리 로그아웃이 될 수 있어, 삭제 로직에서 항상 세 개를 함께 관리해야 한다.",
           ],
         },
@@ -210,7 +210,7 @@ const en: NoteBody = {
           tone: "destructive",
           items: [
             "Baking and managing three cookies makes login/logout logic that much more complex.",
-            "Legacy cookie A relies on a fixed-value encryption scheme — much weaker than the new cookie's random IV each time. The exact flaw isn't detailed here, but it's a debt that must be kept until legacy services are gone.",
+            "Legacy cookie A keeps an older encryption scheme for backward compatibility, so it isn't as strong as the new cookie's random-IV approach — a compatibility debt carried until legacy services are gone.",
             "If even one of the three cookies is missed on logout, it can be a half-logout, so the deletion logic must always manage all three together.",
           ],
         },
