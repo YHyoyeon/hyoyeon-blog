@@ -67,7 +67,7 @@ function DeployCharts({
 
 const ko: NoteBody = {
   intro:
-    "QA API 서버 CPU가 요청량과 무관하게 78~99%로 포화되고 스스로 회복하지 못했습니다. 원인은 9개월 전 머지된 SSE 백필의 XREVRANGE 커서 버그 — 빠진 한 글자 '('가 만든 불멸의 무한 루프를 추적한 기록입니다.",
+    "QA API 서버 CPU가 요청량과 무관하게 78~99%로 포화되었고, 배포와 상관없이 꺼졌다 켜지기를 반복했습니다. 원인은 9개월 전 머지된 SSE 백필의 XREVRANGE 커서 버그 — 빠진 한 글자 '('가 만든 불멸의 무한 루프를 추적한 기록입니다.",
   sections: [
     {
       label: "ROOT CAUSE — 근본 원인",
@@ -248,7 +248,7 @@ const ko: NoteBody = {
 
 const en: NoteBody = {
   intro:
-    "A QA API server's CPU saturated at 78–99% regardless of request volume and never recovered on its own. The cause was an XREVRANGE cursor bug in an SSE backfill merged 9 months earlier — the story of tracing an immortal infinite loop born from one missing '('.",
+    "A QA API server's CPU saturated at 78–99% regardless of request volume, switching itself off and back on with no deploy involved. The cause was an XREVRANGE cursor bug in an SSE backfill merged 9 months earlier — the story of tracing an immortal infinite loop born from one missing '('.",
   sections: [
     {
       label: "ROOT CAUSE",
