@@ -67,7 +67,7 @@ function DeployCharts({
 
 const ko: NoteBody = {
   intro:
-    "QA API 서버 CPU가 요청량과 무관하게 78~99%로 포화되었고, 배포와 상관없이 꺼졌다 켜지기를 반복했습니다. 원인은 9개월 전 머지된 SSE 백필의 XREVRANGE 커서 버그 — 빠진 한 글자 '('가 만든 불멸의 무한 루프를 추적한 기록입니다.",
+    "QA API 서버 CPU가 요청량과 무관하게 78~99%로 포화되었고, 배포와 상관없이 꺼졌다 켜지기를 반복했다. 원인은 9개월 전 머지된 SSE 백필의 XREVRANGE 커서 버그 — 빠진 한 글자 '('가 만든 무한 루프를 추적한 기록이다.",
   sections: [
     {
       label: "ROOT CAUSE — 근본 원인",
@@ -79,9 +79,9 @@ const ko: NoteBody = {
           icon: AlertTriangle,
           tone: "destructive",
           items: [
-            "XREVRANGE의 end~start 범위는 양단 inclusive다. 페이징 커서에 exclusive 경계 '('를 안 붙이면 범위 끝에서 마지막 entry가 영원히 재등장한다. 이 코드는 최초 경계에만 '('를 붙였다.",
+            "XREVRANGE의 end~start 범위는 양단 inclusive다. 페이징 커서에 exclusive 경계 '('를 안 붙이면 범위 끝에서 마지막 entry가 계속 재등장한다. 이 코드는 최초 경계에만 '('를 붙였다.",
             "종료 조건이 '빈 결과 / 내 이벤트 발견' 뿐이라 스트림에 항목이 있는데 내 것이 없으면 둘 다 성립하지 않는다 — 무한 루프.",
-            "백필은 await 없이 .catch만 붙인 fire-and-forget이라 SSE 연결이 끊겨도 Promise가 살아남는다. 조건을 밟은 연결 1회 = 죽지 않는 busy-loop 1개 적립.",
+            "백필은 await 없이 .catch만 붙인 fire-and-forget이라 SSE 연결이 끊겨도 Promise가 살아남는다. 조건을 밟은 연결 1회마다 종료되지 않는 busy-loop가 하나씩 쌓인다.",
           ],
         },
       ],
@@ -93,7 +93,7 @@ const ko: NoteBody = {
         {
           kind: "prose",
           paragraphs: [
-            "await는 응답 대기 동안 이벤트 루프를 돌려주므로 블로킹은 아닙니다. 문제는 응답이 오자마자 다음 XREVRANGE를 재장전한다는 것 — 왕복이 끝나는 즉시 다음 콜백을 큐에 다시 넣는 자기재생 발화기가 됩니다. 루프 1개면 CPU가 조금 오르는 정도지만 수십 개가 누적되면 단일 스레드 이벤트 루프가 이 콜백들만 순회하며 유저 요청이 큐 뒤로 밀립니다. Redis는 빨라서 폭격을 맞고도 15% 수준 — 포화되는 건 질문을 퍼붓는 API 쪽입니다.",
+            "await는 응답 대기 동안 이벤트 루프를 돌려주므로 블로킹은 아니다. 문제는 응답이 오자마자 다음 XREVRANGE를 곧바로 다시 호출한다는 것 — 왕복이 끝나는 즉시 다음 콜백을 큐에 다시 넣어 스스로 반복된다. 루프 1개면 CPU가 조금 오르는 정도지만 수십 개가 누적되면 단일 스레드 이벤트 루프가 이 콜백들만 순회하며 유저 요청이 큐 뒤로 밀린다. Redis는 빨라서 조회가 몰려도 15% 수준 — 포화되는 건 조회를 반복해서 보내는 API 쪽이다.",
           ],
         },
         {
@@ -104,7 +104,7 @@ const ko: NoteBody = {
     loop 무한 스핀
         EL->>R: XREVRANGE 재조회
         R-->>EL: 같은 rows
-        EL->>EL: 콜백 재장전
+        EL->>EL: 콜백 다시 큐잉
     end
     Note over EL: 유저 요청은 큐 뒤에서 계속 밀림`,
         },
@@ -159,16 +159,16 @@ const ko: NoteBody = {
         {
           kind: "steps",
           steps: [
-            { title: "톱니 (1~3일차) — OOM 크래시루프와의 합주", body: "별개 원인(의존성 일괄 범프)의 힙 OOM이 프로세스를 수십 분 주기로 죽였다. 크래시 → 스핀 전멸(골) → 재시작 → SSE 재연결 → 스핀 재적립(피크)의 반복이 0~100%를 오가는 톱니를 만들었다." },
-            { title: "정지대 (3일차 낮) — 둘 다 조용해진 구간", body: "의존성 롤백으로 OOM이 멈췄고 마침 이 시간대엔 SSE 연결도 거의 없었다. 스핀이 성립하지 않아 CPU가 낮게 평탄해 보였다 — 회복된 게 아니라 방아쇠가 잠시 없었을 뿐." },
-            { title: "고원 (3일차 저녁~5일차) — 악화의 안정화", body: "저녁부터 연결이 시간당 수십 건씩 꾸준히 유입되며 잔존 스트림 위에 불멸 스핀이 차곡차곡 쌓였다. 크래시라는 '리셋'이 사라지자 오히려 100% 고원으로 굳었다. 평탄 = 좋아진 게 아니라 나빠진 상태가 안정된 것." },
-            { title: "급락 (5일차 저녁) — 데이터가 꺼 준 장애", body: "마지막 발행으로부터 48시간이 지나 트림으로 스트림이 비자 다음 조회가 빈 결과를 반환하며 루프가 일제히 소멸했다. 배포 없이 CPU가 평시로 복귀 — 방아쇠도 소화기도 데이터였다." },
+            { title: "톱니 (1~3일차) — OOM 크래시 루프와 겹침", body: "별개 원인(의존성 일괄 범프)의 힙 OOM이 프로세스를 수십 분 주기로 죽였다. 크래시 → 스핀 전멸(골) → 재시작 → SSE 재연결 → 스핀 재적립(피크)의 반복이 0~100%를 오가는 톱니를 만들었다." },
+            { title: "정지대 (3일차 낮) — 둘 다 조용해진 구간", body: "의존성 롤백으로 OOM이 멈췄고 마침 이 시간대엔 SSE 연결도 거의 없었다. 스핀이 성립하지 않아 CPU가 낮게 평탄해 보였다 — 회복된 게 아니라 유발 조건이 잠시 없었을 뿐." },
+            { title: "고원 (3일차 저녁~5일차) — 악화의 안정화", body: "저녁부터 연결이 시간당 수십 건씩 꾸준히 유입되며 잔존 스트림 위에 종료되지 않는 스핀이 차곡차곡 쌓였다. 크래시라는 '리셋'이 사라지자 오히려 100% 고원으로 굳었다. 평탄 = 좋아진 게 아니라 나빠진 상태가 안정된 것." },
+            { title: "급락 (5일차 저녁) — 데이터가 꺼 준 장애", body: "마지막 발행으로부터 48시간이 지나 트림으로 스트림이 비자 다음 조회가 빈 결과를 반환하며 루프가 일제히 소멸했다. 배포 없이 CPU가 평시로 복귀 — 장애를 일으킨 것도, 멎게 한 것도 데이터였다." },
           ],
         },
         {
           kind: "prose",
           paragraphs: [
-            "같은 주에 별개 원인의 힙 OOM 장애가 겹치면서 두 장애가 증폭 고리를 만들었습니다. 서로 독립인 두 문제가 그래프 위에서는 하나의 무늬로 섞여 원인 추적을 흐렸습니다.",
+            "같은 주에 별개 원인의 힙 OOM 장애가 겹치면서 두 장애가 증폭 고리를 만들었다. 서로 독립인 두 문제가 그래프 위에서는 하나의 무늬로 섞여 원인 추적을 흐렸다.",
           ],
         },
         {
@@ -187,10 +187,10 @@ const ko: NoteBody = {
         {
           kind: "keypoints",
           items: [
-            { icon: Database, title: "DB 이벤트 발행 로그 — 무장 시각을 특정", body: "장애 직전 5.4일간 발행 0건으로 빈 스트림 상태를 입증하고, 샤드별로 빈 스트림에 첫 entry가 박힌 '무장 시각'을 특정했다. 한 샤드는 최근 발행이 전부 한 명 — 그 샤드의 다른 모든 연결이 '남의 것만 있는' 조건에 걸렸다." },
-            { icon: FileSearch, title: "애플리케이션 로그 — 불멸 스핀의 탄생 재구성", body: "무장 이후 같은 샤드에 비소유자 유저가 연결한 순간을 재구성해 스핀 1개의 탄생을 확인했다. 백필 에러 로그는 0건 — 루프는 throw 없이 조용히 돈다. 로그 부재가 부하 부재를 뜻하지 않는다." },
-            { icon: Gauge, title: "Redis EngineCPU — 방향을 지목한 50배", body: "사건 전 0.3%였던 Redis EngineCPU가 고원 구간에 15%로 올랐다. Redis가 포화된 게 아니라 질문이 50배로 늘었다는 뜻 — 포화되는 쪽은 질문을 퍼붓는 API의 단일 스레드임을 지목했다." },
-            { icon: GitCommit, title: "전환 vs 배포 — 상관관계와 인과의 분리", body: "장애 발현이 당일 배포보다 14.5시간 앞섰다. 배포는 방아쇠가 아니라 별개 OOM으로 증상을 증폭시켰을 뿐. '직전 배포 탓'이라는 첫 가설을 기각한 결정적 단서였다." },
+            { icon: Database, title: "DB 이벤트 발행 로그 — 성립 시점 특정", body: "장애 직전 5.4일간 발행 0건으로 빈 스트림 상태를 입증하고, 샤드별로 빈 스트림에 첫 entry가 들어와 스핀이 성립할 수 있게 된 시점을 특정했다. 한 샤드는 최근 발행이 전부 한 명 — 그 샤드의 다른 모든 연결이 '남의 것만 있는' 조건에 걸렸다." },
+            { icon: FileSearch, title: "애플리케이션 로그 — 스핀 발생 시점 재구성", body: "성립 조건이 갖춰진 뒤 같은 샤드에 비소유자 유저가 연결한 순간을 재구성해 스핀 1개가 생기는 과정을 확인했다. 백필 에러 로그는 0건 — 루프는 throw 없이 조용히 돈다. 로그 부재가 부하 부재를 뜻하지 않는다." },
+            { icon: Gauge, title: "Redis EngineCPU — 방향을 가리킨 50배", body: "사건 전 0.3%였던 Redis EngineCPU가 고원 구간에 15%로 올랐다. Redis가 포화된 게 아니라 조회가 50배로 늘었다는 뜻 — 포화되는 쪽은 조회를 반복해서 보내는 API의 단일 스레드임을 가리켰다." },
+            { icon: GitCommit, title: "전환 vs 배포 — 상관관계와 인과의 분리", body: "장애 발현이 당일 배포보다 14.5시간 앞섰다. 배포는 원인이 아니라 별개 OOM으로 증상을 키웠을 뿐. '직전 배포 탓'이라는 첫 가설을 기각한 결정적 단서였다." },
           ],
         },
       ],
@@ -203,7 +203,7 @@ const ko: NoteBody = {
         {
           kind: "prose",
           paragraphs: [
-            "회귀 테스트로 못을 박았습니다. pre-fix 커서로 되돌리면 '남의 것만 있는' 케이스가 미종료 + 폭주(2초에 13만 회 조회)하고 fix 코드는 XREVRANGE 2회 이하로 끝납니다. 라이브에서는 같은 샤드의 두 계정으로 성립 조건을 재현해 다량 동시 연결 후에도 CPU가 즉시 복귀하는 것을 확인했고, 배포 직후 API CPU와 Redis EngineCPU가 동시에 평시로 떨어지며 종결을 확인했습니다.",
+            "회귀 테스트로 재발을 막았다. pre-fix 커서로 되돌리면 '남의 것만 있는' 케이스가 종료되지 않고 과도하게 반복(2초에 13만 회 조회)하며 fix 코드는 XREVRANGE 2회 이하로 끝난다. 라이브에서는 같은 샤드의 두 계정으로 성립 조건을 재현해 다량 동시 연결 후에도 CPU가 즉시 복귀하는 것을 확인했고, 배포 직후 API CPU와 Redis EngineCPU가 동시에 평시로 떨어지며 종결을 확인했다.",
           ],
         },
         {
@@ -235,7 +235,7 @@ const ko: NoteBody = {
           tone: "muted",
           items: [
             "커서 페이지네이션은 반드시 exclusive 경계로 전진시킨다. 경계가 inclusive인 API(Redis Streams 등)에서 특히. '커서가 전진 못 할 수 있는가?'를 루프 리뷰의 기본 질문으로.",
-            "while (true)에는 진행 보장 또는 상한을 명시한다. 종료 조건이 정상 데이터에만 의존하면 비정상 데이터에서 영원히 돈다.",
+            "while (true)에는 진행 보장 또는 상한을 명시한다. 종료 조건이 정상 데이터에만 의존하면 비정상 데이터에서는 끝나지 않는다.",
             "fire-and-forget 비동기는 소유자(수명주기)를 정한다. 요청·연결보다 오래 사는 Promise는 잠재 누수다.",
             "상관관계(직전 배포)와 인과를 구분한다. 방아쇠는 코드가 아니라 데이터·연결 상태일 수 있다. 배포 타임라인, 이분 프로브, 계측 세 겹으로 검증했다.",
             "겹친 장애는 분리한다. 별개 OOM의 톱니가 스핀 고원 위에 무늬를 씌워 원인 추적을 흐렸다.",
@@ -248,7 +248,7 @@ const ko: NoteBody = {
 
 const en: NoteBody = {
   intro:
-    "A QA API server's CPU saturated at 78–99% regardless of request volume, switching itself off and back on with no deploy involved. The cause was an XREVRANGE cursor bug in an SSE backfill merged 9 months earlier — the story of tracing an immortal infinite loop born from one missing '('.",
+    "A QA API server's CPU saturated at 78–99% regardless of request volume, switching itself off and back on with no deploy involved. The cause was an XREVRANGE cursor bug in an SSE backfill merged 9 months earlier — the story of tracing an infinite loop born from one missing '('.",
   sections: [
     {
       label: "ROOT CAUSE",
@@ -260,9 +260,9 @@ const en: NoteBody = {
           icon: AlertTriangle,
           tone: "destructive",
           items: [
-            "XREVRANGE's end–start range is inclusive on both ends. Without the exclusive boundary '(' on the paging cursor, the last entry at the range's edge reappears forever. This code applied '(' only to the initial boundary.",
+            "XREVRANGE's end–start range is inclusive on both ends. Without the exclusive boundary '(' on the paging cursor, the last entry at the range's edge keeps reappearing. This code applied '(' only to the initial boundary.",
             "The only exit conditions were 'empty result' or 'found my event', so when the stream has items but none are mine, neither holds — an infinite loop.",
-            "The backfill was fire-and-forget with only a .catch and no await, so the Promise outlives a dropped SSE connection. One connection that hits the condition = one deathless busy-loop banked.",
+            "The backfill was fire-and-forget with only a .catch and no await, so the Promise outlives a dropped SSE connection. One connection that hits the condition adds one non-terminating busy-loop.",
           ],
         },
       ],
@@ -274,7 +274,7 @@ const en: NoteBody = {
         {
           kind: "prose",
           paragraphs: [
-            "await yields the event loop while waiting for a response, so it isn't blocking. The problem is that the moment a response arrives it reloads the next XREVRANGE — a self-regenerating igniter that re-queues the next callback the instant the round trip ends. One loop nudges CPU a little, but pile up dozens and the single-threaded event loop cycles through nothing but these callbacks while user requests slide to the back of the queue. Redis is fast enough to sit at ~15% under the barrage — what saturates is the API firing the questions.",
+            "await yields the event loop while waiting for a response, so it isn't blocking. The problem is that the moment a response arrives it immediately calls the next XREVRANGE — re-queuing the next callback the instant the round trip ends, so it keeps repeating on its own. One loop nudges CPU a little, but pile up dozens and the single-threaded event loop cycles through nothing but these callbacks while user requests slide to the back of the queue. Redis is fast enough to stay at ~15% under the repeated queries — what saturates is the API sending them in a tight loop.",
           ],
         },
         {
@@ -285,7 +285,7 @@ const en: NoteBody = {
     loop Infinite spin
         EL->>R: re-query XREVRANGE
         R-->>EL: same rows
-        EL->>EL: reload callback
+        EL->>EL: re-queue callback
     end
     Note over EL: user requests keep piling up behind the queue`,
         },
@@ -340,10 +340,10 @@ const en: NoteBody = {
         {
           kind: "steps",
           steps: [
-            { title: "Sawtooth (days 1–3) — in concert with an OOM crash loop", body: "A heap OOM from a separate cause (a bulk dependency bump) killed the process every few dozen minutes. Crash → spins wiped out (trough) → restart → SSE reconnect → spins re-accumulate (peak), repeating into a 0–100% sawtooth." },
+            { title: "Sawtooth (days 1–3) — overlapping an OOM crash loop", body: "A heap OOM from a separate cause (a bulk dependency bump) killed the process every few dozen minutes. Crash → spins wiped out (trough) → restart → SSE reconnect → spins re-accumulate (peak), repeating into a 0–100% sawtooth." },
             { title: "Lull (day 3, daytime) — a stretch where both went quiet", body: "Rolling back the dependency stopped the OOM, and this window happened to have almost no SSE connections. With no spins triggering, CPU looked low and flat — not recovered, just briefly without a trigger." },
-            { title: "Plateau (day 3 evening – day 5) — a worsening that stabilized", body: "From the evening, connections flowed in steadily — dozens an hour — and immortal spins stacked up on the surviving streams. With the crash 'reset' gone, it froze into a 100% plateau instead. Flat didn't mean better; the worse state had stabilized." },
-            { title: "Drop (day 5 evening) — the incident the data switched off", body: "48h after the last publish, the trim emptied the stream, the next query returned empty, and the loops died en masse. CPU returned to baseline with no deploy — both the trigger and the extinguisher were data." },
+            { title: "Plateau (day 3 evening – day 5) — a worsening that stabilized", body: "From the evening, connections flowed in steadily — dozens an hour — and non-terminating spins stacked up on the surviving streams. With the crash 'reset' gone, it froze into a 100% plateau instead. Flat didn't mean better; the worse state had stabilized." },
+            { title: "Drop (day 5 evening) — the incident the data switched off", body: "48h after the last publish, the trim emptied the stream, the next query returned empty, and the loops died en masse. CPU returned to baseline with no deploy — both what started the incident and what ended it were data." },
           ],
         },
         {
@@ -368,9 +368,9 @@ const en: NoteBody = {
         {
           kind: "keypoints",
           items: [
-            { icon: Database, title: "DB publish log — pinpointing the arming time", body: "Zero publishes for the 5.4 days before the incident proved the empty-stream state, and per shard we pinpointed the 'arming time' when the first entry landed in an empty stream. On one shard the recent publishes were all from one person — every other connection on that shard hit the 'only someone else's' condition." },
-            { icon: FileSearch, title: "Application log — reconstructing an immortal spin's birth", body: "By reconstructing the moment a non-owner connected to that same shard after arming, we confirmed the birth of a single spin. Backfill error logs: zero — the loop spins quietly with no throw. Absence of logs doesn't mean absence of load." },
-            { icon: Gauge, title: "Redis EngineCPU — a 50× that pointed the direction", body: "Redis EngineCPU, 0.3% before the event, rose to 15% during the plateau. Not that Redis was saturated — the questions had multiplied 50×, pointing to the single thread of the question-firing API as the thing that saturates." },
+            { icon: Database, title: "DB publish log — pinpointing when the condition was met", body: "Zero publishes for the 5.4 days before the incident proved the empty-stream state, and per shard we pinpointed when the first entry landed in an empty stream and the spin became possible. On one shard the recent publishes were all from one person — every other connection on that shard hit the 'only someone else's' condition." },
+            { icon: FileSearch, title: "Application log — reconstructing when a spin started", body: "By reconstructing the moment a non-owner connected to that same shard after the condition was met, we confirmed a single spin starting. Backfill error logs: zero — the loop spins quietly with no throw. Absence of logs doesn't mean absence of load." },
+            { icon: Gauge, title: "Redis EngineCPU — a 50× that pointed the direction", body: "Redis EngineCPU, 0.3% before the event, rose to 15% during the plateau. Not that Redis was saturated — the queries had multiplied 50×, pointing to the single thread of the API sending them as the thing that saturates." },
             { icon: GitCommit, title: "Onset vs deploy — separating correlation from causation", body: "Onset preceded that day's deploy by 14.5 hours. The deploy wasn't the trigger; it merely amplified symptoms via a separate OOM. That was the decisive clue that rejected the first 'it was the last deploy' hypothesis." },
           ],
         },
@@ -384,7 +384,7 @@ const en: NoteBody = {
         {
           kind: "prose",
           paragraphs: [
-            "A regression test nailed it down. Revert to the pre-fix cursor and the 'only someone else's' case never terminates and runs away (130k queries in 2 seconds); the fixed code finishes in 2 or fewer XREVRANGE calls. In production we reproduced the trigger with two accounts on the same shard and confirmed CPU snaps back even after many concurrent connections; right after deploy, API CPU and Redis EngineCPU dropped to baseline together, confirming closure.",
+            "A regression test confirms it. Revert to the pre-fix cursor and the 'only someone else's' case never terminates and repeats excessively (130k queries in 2 seconds); the fixed code finishes in 2 or fewer XREVRANGE calls. In production we reproduced the trigger with two accounts on the same shard and confirmed CPU snaps back even after many concurrent connections; right after deploy, API CPU and Redis EngineCPU dropped to baseline together, confirming closure.",
           ],
         },
         {
@@ -416,7 +416,7 @@ const en: NoteBody = {
           tone: "muted",
           items: [
             "Always advance a cursor with an exclusive boundary — especially on APIs where the boundary is inclusive (Redis Streams and the like). Make 'can this cursor fail to advance?' a default question in loop review.",
-            "Give every while (true) an explicit progress guarantee or a cap. If the exit condition depends only on well-formed data, malformed data spins forever.",
+            "Give every while (true) an explicit progress guarantee or a cap. If the exit condition depends only on well-formed data, malformed data makes it loop without terminating.",
             "Give fire-and-forget async an owner (a lifecycle). A Promise that outlives its request or connection is a latent leak.",
             "Distinguish correlation (the last deploy) from causation. The trigger may be data or connection state, not code. We verified across three layers: the deploy timeline, a bisection probe, and instrumentation.",
             "Separate overlapping incidents. A separate OOM's sawtooth laid a pattern over the spin plateau and blurred the root-cause trail.",

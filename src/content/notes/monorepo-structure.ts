@@ -48,7 +48,7 @@ packages/     code shared across services (never deployed by itself)
   shared/        other shared resources`;
 
 const ko: NoteBody = {
-  intro: "pnpm workspace 기반으로 apps와 packages를 분리한 모노레포 구조와 의존성 관리 방식을 정리했습니다.",
+  intro: "pnpm workspace 기반으로 apps와 packages를 분리한 모노레포 구조와 의존성 관리 방식을 정리했다.",
   sections: [
     {
       label: "PURPOSE — 목적",
@@ -57,7 +57,7 @@ const ko: NoteBody = {
         {
           kind: "prose",
           paragraphs: [
-            "인증, 결제, 운영툴 등 여러 서비스가 로그인 세션 검증 같은 로직을 공통으로 필요로 했습니다. 서비스마다 같은 로직을 따로 구현하면 중복과 불일치가 생기기 쉬워, 공유 로직을 packages로 끌어올리고 apps는 그것만 참조하는 구조로 정리했습니다.",
+            "인증, 결제, 운영툴 등 여러 서비스가 로그인 세션 검증 같은 로직을 공통으로 필요로 했다. 서비스마다 같은 로직을 따로 구현하면 중복과 불일치가 생기기 쉬워, 공유 로직을 packages로 끌어올리고 apps는 그것만 참조하는 구조로 정리했다.",
           ],
         },
       ],

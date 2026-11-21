@@ -106,7 +106,7 @@ const enSync = `sequenceDiagram
     Auth-->>Browser: sync result (added/removed/updated SNS list)`;
 
 const ko: NoteBody = {
-  intro: "Google·Apple·Facebook 같은 SNS 계정으로 로그인하는 흐름과, 외부 ID 공급자에 연결된 SNS 목록을 내부 DB와 동기화하는 흐름을 정리했습니다.",
+  intro: "Google·Apple·Facebook 같은 SNS 계정으로 로그인하는 흐름과, 외부 ID 공급자에 연결된 SNS 목록을 내부 DB와 동기화하는 흐름을 정리했다.",
   sections: [
     {
       label: "PURPOSE — 목적",
@@ -115,7 +115,7 @@ const ko: NoteBody = {
         {
           kind: "prose",
           paragraphs: [
-            "어떤 SNS가 사용자에게 연결되어 있는지는 외부 ID 공급자 쪽 정보가 항상 정답입니다. 내부 DB의 SNS 연결 테이블은 그 정보의 복사본일 뿐이라, 동기화는 외부 ID 공급자에서 DB로만 흐르는 단방향 구조로 설계했습니다.",
+            "어떤 SNS가 사용자에게 연결되어 있는지는 외부 ID 공급자 쪽 정보가 항상 정답이다. 내부 DB의 SNS 연결 테이블은 그 정보의 복사본일 뿐이라, 동기화는 외부 ID 공급자에서 DB로만 흐르는 단방향 구조로 설계했다.",
           ],
         },
       ],

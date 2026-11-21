@@ -82,7 +82,7 @@ const enPrepaid = `sequenceDiagram
     end`;
 
 const ko: NoteBody = {
-  intro: "하나의 billing 서비스 안에 호스팅 리다이렉트형·토큰 발급형·코드 검증형·레거시 SOAP형이 섞인 5개 PG 연동 구조를 정리했습니다.",
+  intro: "하나의 billing 서비스 안에 호스팅 리다이렉트형·토큰 발급형·코드 검증형·레거시 SOAP형이 섞인 5개 PG 연동 구조를 정리했다.",
   sections: [
     {
       label: "PURPOSE — 목적",
@@ -91,7 +91,7 @@ const ko: NoteBody = {
         {
           kind: "prose",
           paragraphs: [
-            "billing 앱은 PG A·PG B·PG C·PG D·PG E 5개 결제 수단을 붙이고 있지만, 각 PG사가 요구하는 연동 패턴이 완전히 다릅니다. 하나의 결제 개념 안에 호스팅 리다이렉트·토큰 발급·코드 검증·레거시 SOAP 방식이 섞여 있어 신규 합류자가 헷갈리기 쉬운 지점을 정리했습니다.",
+            "billing 앱은 PG A·PG B·PG C·PG D·PG E 5개 결제 수단을 붙이고 있지만, 각 PG사가 요구하는 연동 패턴이 완전히 다릅니다. 하나의 결제 개념 안에 호스팅 리다이렉트·토큰 발급·코드 검증·레거시 SOAP 방식이 섞여 있어 신규 합류자가 헷갈리기 쉬운 지점을 정리했다.",
           ],
         },
       ],
