@@ -11,8 +11,8 @@ export const notePath = (lang: Lang, slug: string) =>
 export const guestbookPath: Record<Lang, string> = { ko: "/guestbook", en: "/en/guestbook" };
 
 export const categoryLabelByLang: Record<Lang, Record<NoteCategory, string>> = {
-  ko: { Incident: "장애", Auth: "인증", Infra: "인프라", Payments: "결제", Chain: "온체인" },
-  en: { Incident: "Incident", Auth: "Auth", Infra: "Infra", Payments: "Payments", Chain: "On-chain" },
+  ko: { Incident: "장애", Auth: "인증", Infra: "인프라", Payments: "결제", Chain: "온체인", Info: "정보" },
+  en: { Incident: "Incident", Auth: "Auth", Infra: "Infra", Payments: "Payments", Chain: "On-chain", Info: "Info" },
 };
 
 export const catLabel = (lang: Lang, cat: NoteCategory) => categoryLabelByLang[lang][cat];

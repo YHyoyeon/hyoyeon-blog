@@ -2,7 +2,7 @@ import type { Lang } from "@/lib/i18n";
 
 export const SITE_URL = "https://hyoyeon-blog.vercel.app";
 
-export type NoteCategory = "Incident" | "Auth" | "Infra" | "Payments" | "Chain";
+export type NoteCategory = "Incident" | "Auth" | "Infra" | "Payments" | "Chain" | "Info";
 
 export type LangText = Record<Lang, string>;
 
@@ -19,6 +19,19 @@ export const noteTitle = (n: NoteMeta, lang: Lang) => n.title[lang];
 export const noteDesc = (n: NoteMeta, lang: Lang) => n.description[lang];
 
 const entries: NoteMeta[] = [
+  {
+    slug: "encryption-fundamentals",
+    title: {
+      ko: "암호화의 단계 — 핸드셰이크부터 전자서명까지",
+      en: "Encryption, Step by Step — From Handshake to Signatures",
+    },
+    description: {
+      ko: "대칭·비대칭 하이브리드 암호화부터 해시, JWT·HMAC, 비밀번호 해싱(bcrypt), 인코딩·암호화·해싱 구분, 전자서명·CA, KMS, OAuth 2.0·OIDC까지 한 흐름으로 정리",
+      en: "Hybrid symmetric/asymmetric encryption, hashing, JWT/HMAC, password hashing, encoding vs encryption vs hashing, digital signatures and CAs, KMS, OAuth 2.0, and OIDC — in one connected flow.",
+    },
+    category: "Info",
+    date: "2026-11-21",
+  },
   {
     slug: "sse-backfill-infinite-loop",
     title: {

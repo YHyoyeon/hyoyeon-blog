@@ -2,11 +2,11 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Search, Siren, KeyRound, Server, CreditCard, Link2, ChevronLeft, ChevronRight, type LucideIcon } from "lucide-react";
+import { Search, Siren, KeyRound, Server, CreditCard, Link2, BookOpen, ChevronLeft, ChevronRight, type LucideIcon } from "lucide-react";
 import { notes, noteTitle, noteDesc, type NoteCategory, type NoteMeta } from "@/lib/notes";
 import { dict, catLabel, notePath, formatDate, type Lang } from "@/lib/i18n";
 
-const categoryKeys: NoteCategory[] = ["Incident", "Auth", "Infra", "Payments", "Chain"];
+const categoryKeys: NoteCategory[] = ["Incident", "Auth", "Infra", "Payments", "Chain", "Info"];
 
 const categoryStyle: Record<NoteCategory, { chip: string; thumb: string; icon: LucideIcon }> = {
   Incident: { chip: "bg-red-50 text-red-500 dark:bg-red-950/50 dark:text-red-400", thumb: "bg-red-50 text-red-300 dark:bg-red-950/40 dark:text-red-500", icon: Siren },
@@ -14,6 +14,7 @@ const categoryStyle: Record<NoteCategory, { chip: string; thumb: string; icon: L
   Infra: { chip: "bg-emerald-50 text-emerald-600 dark:bg-emerald-950/50 dark:text-emerald-400", thumb: "bg-emerald-50 text-emerald-300 dark:bg-emerald-950/40 dark:text-emerald-500", icon: Server },
   Payments: { chip: "bg-amber-50 text-amber-600 dark:bg-amber-950/50 dark:text-amber-400", thumb: "bg-amber-50 text-amber-300 dark:bg-amber-950/40 dark:text-amber-500", icon: CreditCard },
   Chain: { chip: "bg-violet-50 text-violet-500 dark:bg-violet-950/50 dark:text-violet-400", thumb: "bg-violet-50 text-violet-300 dark:bg-violet-950/40 dark:text-violet-500", icon: Link2 },
+  Info: { chip: "bg-cyan-50 text-cyan-600 dark:bg-cyan-950/50 dark:text-cyan-400", thumb: "bg-cyan-50 text-cyan-300 dark:bg-cyan-950/40 dark:text-cyan-500", icon: BookOpen },
 };
 
 export function CategoryChip({ category, lang }: { category: NoteCategory; lang: Lang }) {

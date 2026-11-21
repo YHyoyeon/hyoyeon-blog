@@ -14,6 +14,7 @@ import nftMarketplacePurchaseFlow from "./nft-marketplace-purchase-flow";
 import paymentFlows from "./payment-flows";
 import questAttendanceSwapFlow from "./quest-attendance-swap-flow";
 import graphifyKnowledgeGraph from "./graphify-knowledge-graph";
+import encryptionFundamentals from "./encryption-fundamentals";
 
 export const noteContent: Record<string, NoteContent> = {
   "bun-hono-usage": bunHonoUsage,
@@ -31,4 +32,5 @@ export const noteContent: Record<string, NoteContent> = {
   "payment-flows": paymentFlows,
   "quest-attendance-swap-flow": questAttendanceSwapFlow,
   "graphify-knowledge-graph": graphifyKnowledgeGraph,
+  "encryption-fundamentals": encryptionFundamentals,
 };
