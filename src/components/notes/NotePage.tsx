@@ -71,9 +71,13 @@ export default function NotePage({ slug, lang }: { slug: string; lang: Lang }) {
 
           {body.sections.map((section, i) => (
             <NoteSection key={i} label={section.label} title={section.title}>
-              {section.blocks.map((block, j) => (
-                <Block key={j} block={block} />
-              ))}
+              <div className="space-y-6">
+                {section.blocks.map((block, j) => (
+                  <div key={j}>
+                    <Block block={block} />
+                  </div>
+                ))}
+              </div>
             </NoteSection>
           ))}
 

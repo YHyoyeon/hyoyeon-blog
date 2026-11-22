@@ -147,7 +147,7 @@ const ko: NoteBody = {
           paragraphs: [
             "대칭키 암호화(AES)는 하나의 키로 잠그고 같은 키로 푼다. 빠르지만, 그 키를 상대에게 어떻게 안전하게 전달하느냐가 문제다.",
             "비대칭키 암호화(RSA)는 공개키·개인키 한 쌍을 쓴다. 공개키로 잠근 건 개인키로만 풀리고, 그 반대도 성립한다. 느리지만 '키 전달' 문제를 푼다.",
-            "그래서 둘을 합친다. 비대칭키로는 '대칭키 하나'만 안전하게 전달하고, 이후 실제 데이터는 빠른 대칭키로 주고받는다. 이것이 하이브리드 암호화이고, HTTPS 통신의 기본 뼈대다.",
+            "그래서 둘을 합친다. 비대칭키로는 '대칭키 하나'만 안전하게 전달하고, 이후 실제 데이터는 빠른 대칭키로 주고받는다. 이것이 하이브리드 암호화이고, HTTPS 통신의 기본 구조다.",
           ],
         },
         {
@@ -172,7 +172,7 @@ const ko: NoteBody = {
     },
     {
       label: "HASH vs ENC — 해시 vs 암호화",
-      title: "되돌릴 수 있는가가 갈림길이다",
+      title: "복호화가 되느냐가 핵심 차이다",
       blocks: [
         {
           kind: "prose",
@@ -368,7 +368,7 @@ const ko: NoteBody = {
     },
     {
       label: "OIDC — 로그인(인증)",
-      title: "OAuth에 '너 누구냐'를 얹는다",
+      title: "OAuth 위에 인증(누구인가)을 더한다",
       blocks: [
         {
           kind: "prose",
@@ -397,7 +397,7 @@ const ko: NoteBody = {
     },
     {
       label: "SUMMARY — 한눈에",
-      title: "목적으로 고르면 헷갈리지 않는다",
+      title: "목적에 따라 고른다",
       blocks: [
         {
           kind: "list",
@@ -431,7 +431,7 @@ const en: NoteBody = {
           paragraphs: [
             "Symmetric encryption (AES) locks and unlocks with one shared key. It's fast, but the hard part is delivering that key to the other side safely.",
             "Asymmetric encryption (RSA) uses a public/private key pair. What the public key locks, only the private key opens, and vice versa. It's slow, but it solves the key-delivery problem.",
-            "So you combine them: use the asymmetric keys to deliver just one symmetric key safely, then send the actual data with the fast symmetric key. That's hybrid encryption, and it's the backbone of HTTPS.",
+            "So you combine them: use the asymmetric keys to deliver just one symmetric key safely, then send the actual data with the fast symmetric key. That's hybrid encryption, and it's the basic structure of HTTPS.",
           ],
         },
         {
@@ -456,7 +456,7 @@ const en: NoteBody = {
     },
     {
       label: "HASH vs ENC",
-      title: "Reversible or not — that's the fork",
+      title: "Reversibility is the core difference",
       blocks: [
         {
           kind: "prose",
@@ -652,7 +652,7 @@ const en: NoteBody = {
     },
     {
       label: "OIDC",
-      title: "Adding 'who are you' on top of OAuth",
+      title: "Adding identity (authentication) on top of OAuth",
       blocks: [
         {
           kind: "prose",
@@ -681,7 +681,7 @@ const en: NoteBody = {
     },
     {
       label: "SUMMARY",
-      title: "Pick by purpose and it stops being confusing",
+      title: "Choose by purpose",
       blocks: [
         {
           kind: "list",
