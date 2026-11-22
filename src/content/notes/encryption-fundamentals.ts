@@ -386,14 +386,25 @@ openssl rsa -in private.key -pubout -out public.key  # 공개키 (.pub / .pem)
           kind: "prose",
           paragraphs: [
             "OAuth 2.0의 access token에는 '무엇을 해도 되는가'만 있고 '누구인가'는 없다. 그래서 OAuth만으로는 로그인한 사용자가 누구인지 알 수 없다. OIDC(OpenID Connect)는 OAuth 2.0 위에 얹는 인증 계층으로, 이 빈칸을 채운다. '구글로 로그인' 같은 소셜 로그인이 바로 OIDC다.",
+            "동작은 OAuth의 Authorization Code 흐름을 그대로 쓴다. 인가 요청의 scope에 openid를 넣으면, 토큰 교환 때 access token과 함께 ID Token이 발급된다. 이 ID Token이 진짜 그 IdP에서 왔는지는 전자서명으로 검증한다 — IdP가 개인키로 서명하고, 클라이언트가 공개키로 검증한다.",
           ],
         },
         {
           kind: "keypoints",
           items: [
             { icon: BadgeCheck, title: "ID Token", body: "OIDC가 추가하는 핵심이다. JWT 형식이며 사용자 신원 클레임(sub 주체, iss 발급자, aud 대상, iat·exp 시각, nonce)을 담는다. 이것으로 '누가 로그인했는지'를 확인한다." },
+            { icon: Stamp, title: "서명 검증은 전자서명 그대로다", body: "IdP가 자기 개인키로 ID Token에 서명하고, 검증용 공개키는 공개된 주소(JWKS)에 올려둔다. 클라이언트는 그 공개키로 서명을 검증해 'IdP가 발급했고 변조되지 않았음'을 확인한다 — 개인키는 IdP만 갖고 있어 위조할 수 없다." },
             { icon: Network, title: "openid 스코프로 켠다", body: "인가 요청의 scope에 openid를 넣으면 OIDC가 동작하고 ID Token이 함께 발급된다. 이름·이메일 같은 프로필은 ID Token이나 UserInfo 엔드포인트에서 가져온다." },
             { icon: ShieldCheck, title: "토큰 역할을 섞지 않는다", body: "ID Token은 '인증(누구)', access token은 'API 접근(무엇)' 용도다. ID Token으로 API를 호출하거나 access token으로 신원을 판단하면 안 된다." },
+          ],
+        },
+        {
+          kind: "steps",
+          steps: [
+            { title: "서명 발급", body: "로그인 성공 후 IdP가 사용자 신원 클레임을 담은 ID Token을 만들고, 자기 개인키로 서명해 발급한다." },
+            { title: "공개키 공개 (JWKS)", body: "IdP는 검증용 공개키를 공개된 JWKS 주소에 게시한다. 클라이언트는 이를 받아 캐시해 둔다." },
+            { title: "서명 검증", body: "클라이언트가 JWKS 공개키로 ID Token의 서명을 검증한다. 통과하면 변조되지 않았고 그 IdP가 발급한 것이다." },
+            { title: "클레임 검증", body: "iss(발급자가 기대한 IdP인가), aud(내 클라이언트용인가), exp(만료 안 됐나), nonce(내가 보낸 값과 같나)를 확인한다." },
           ],
         },
         {
@@ -682,14 +693,25 @@ openssl rsa -in private.key -pubout -out public.key  # public key  (.pub / .pem)
           kind: "prose",
           paragraphs: [
             "An OAuth 2.0 access token says what you may do, not who you are. So OAuth alone can't tell who logged in. OIDC (OpenID Connect) is an authentication layer on top of OAuth 2.0 that fills that gap. Social logins like 'Sign in with Google' are OIDC.",
+            "It runs on OAuth's Authorization Code flow. Put openid in the request's scope and the token exchange returns an ID Token alongside the access token. Whether that ID Token really came from the IdP is checked by its digital signature — the IdP signs with its private key, and the client verifies with the public key.",
           ],
         },
         {
           kind: "keypoints",
           items: [
             { icon: BadgeCheck, title: "ID Token", body: "The core thing OIDC adds. It's a JWT carrying identity claims (sub = subject, iss = issuer, aud = audience, iat/exp = timestamps, nonce). This is how you confirm who logged in." },
+            { icon: Stamp, title: "Verification is just a digital signature", body: "The IdP signs the ID Token with its private key and publishes the verification public key at a well-known address (JWKS). The client verifies the signature with that public key to confirm the IdP issued it and nothing was tampered with — only the IdP holds the private key, so it can't be forged." },
             { icon: Network, title: "Turned on by the openid scope", body: "Include openid in the authorization request's scope and OIDC kicks in, issuing an ID Token alongside. Profile claims like name and email come from the ID Token or the UserInfo endpoint." },
             { icon: ShieldCheck, title: "Don't mix the token roles", body: "The ID Token is for authentication (who), the access token for API access (what). Don't call APIs with an ID Token, or judge identity from an access token." },
+          ],
+        },
+        {
+          kind: "steps",
+          steps: [
+            { title: "Sign and issue", body: "After login, the IdP builds an ID Token with the user's identity claims and signs it with its private key." },
+            { title: "Publish the public key (JWKS)", body: "The IdP publishes the verification public key at a well-known JWKS address. The client fetches and caches it." },
+            { title: "Verify the signature", body: "The client verifies the ID Token's signature with the JWKS public key. If it passes, the token is untampered and was issued by that IdP." },
+            { title: "Check the claims", body: "Check iss (the expected issuer), aud (meant for this client), exp (not expired), and nonce (matches what the client sent)." },
           ],
         },
         {
