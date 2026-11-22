@@ -10,6 +10,7 @@ export type Block =
   | { kind: "list"; icon: LucideIcon; tone: "accent" | "destructive" | "muted"; items: string[] }
   | { kind: "mermaid"; chart: string }
   | { kind: "code"; code: string }
+  | { kind: "link"; href: string; label: string }
   // ponytail: escape hatch for the 1 note with bespoke SVG charts; keep schema-driven notes off this.
   | { kind: "custom"; node: ReactNode };
 

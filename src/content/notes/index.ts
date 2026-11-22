@@ -15,6 +15,7 @@ import paymentFlows from "./payment-flows";
 import questAttendanceSwapFlow from "./quest-attendance-swap-flow";
 import graphifyKnowledgeGraph from "./graphify-knowledge-graph";
 import encryptionFundamentals from "./encryption-fundamentals";
+import oauth2OidcJwks from "./oauth2-oidc-jwks";
 
 export const noteContent: Record<string, NoteContent> = {
   "bun-hono-usage": bunHonoUsage,
@@ -33,4 +34,5 @@ export const noteContent: Record<string, NoteContent> = {
   "quest-attendance-swap-flow": questAttendanceSwapFlow,
   "graphify-knowledge-graph": graphifyKnowledgeGraph,
   "encryption-fundamentals": encryptionFundamentals,
+  "oauth2-oidc-jwks": oauth2OidcJwks,
 };

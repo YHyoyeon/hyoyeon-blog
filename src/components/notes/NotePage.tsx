@@ -40,6 +40,18 @@ function Block({ block }: { block: BlockData }) {
           {block.code}
         </pre>
       );
+    case "link":
+      return (
+        <a
+          href={block.href}
+          className="group flex items-center justify-between gap-4 rounded-lg border border-border p-4 transition-colors hover:border-accent/40"
+        >
+          <span className="text-sm font-medium transition-colors group-hover:text-accent break-keep">
+            {block.label}
+          </span>
+          <span className="shrink-0 text-muted-foreground/50 transition-colors group-hover:text-accent">→</span>
+        </a>
+      );
     case "custom":
       return <>{block.node}</>;
   }

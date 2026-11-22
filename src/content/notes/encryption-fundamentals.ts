@@ -1,7 +1,6 @@
 import {
   CheckCircle2,
   AlertTriangle,
-  Lightbulb,
   KeyRound,
   Lock,
   Layers,
@@ -14,9 +13,6 @@ import {
   BadgeCheck,
   Binary,
   ListChecks,
-  Server,
-  Network,
-  UserCheck,
   RefreshCw,
   Database,
 } from "lucide-react";
@@ -80,32 +76,6 @@ const enEnvelope = `sequenceDiagram
     A->>D: store ciphertext + the encrypted DEK together
     Note over A,D: to decrypt, send only the encrypted DEK to KMS`;
 
-const koOauth = `sequenceDiagram
-    participant U as 사용자 (자원 소유자)
-    participant C as 클라이언트 (앱)
-    participant A as 인가 서버
-    participant R as 자원 서버
-    C->>U: 인가 서버로 이동 (로그인·동의 요청)
-    U->>A: 로그인 + 접근 동의
-    A->>C: 1회용 인가 코드 전달 (리다이렉트)
-    C->>A: 코드 + 클라이언트 자격증명 → 토큰 교환 (뒤채널)
-    A->>C: access token 발급
-    C->>R: access token 제시
-    R->>C: 데이터 반환`;
-
-const enOauth = `sequenceDiagram
-    participant U as User (resource owner)
-    participant C as Client (app)
-    participant A as Authorization server
-    participant R as Resource server
-    C->>U: redirect to the authorization server (login + consent)
-    U->>A: log in + approve access
-    A->>C: return a single-use authorization code (redirect)
-    C->>A: code + client credentials → exchange for a token (back channel)
-    A->>C: issue access token
-    C->>R: present access token
-    R->>C: return data`;
-
 const koJwt = `// JWT = header.payload.signature  (점 두 개로 구분)
 eyJhbGciOiJIUzI1NiJ9 . eyJ1c2VySWQiOjEsInJvbGUiOiJ1c2VyIn0 . 3Vr8K2...
 └──── header ───────┘   └──────── payload ────────────────┘   └ signature ┘
@@ -136,7 +106,7 @@ const enBcrypt = `$2b$10$N9qo8uLOickgx2ZMRZoMye  IjZAgcfl7p92ldGxad68LJZdL17lhWy
 
 const ko: NoteBody = {
   intro:
-    "로그인, 결제, 토큰 검증까지 백엔드 곳곳에 암호화와 인증이 깔려 있지만, 대칭·비대칭·해시·인코딩·서명·토큰이 자주 뒤섞여 헷갈린다. 하이브리드 암호화부터 전자서명, 키 관리(KMS), OAuth 2.0·OIDC까지 실무에서 쓰는 개념을 초급에서 심화 순서로 한 흐름에 정리한다. (TLS 1.3의 키 교환은 별도 글에서 다룬다.)",
+    "로그인, 결제, 토큰 검증까지 백엔드 곳곳에 암호화가 깔려 있지만, 대칭·비대칭·해시·인코딩·서명이 자주 뒤섞여 헷갈린다. 하이브리드 암호화부터 전자서명, 키 관리(KMS)까지 실무에서 쓰는 개념을 초급에서 심화 순서로 한 흐름에 정리한다. (로그인·권한을 다루는 OAuth 2.0·OIDC는 2편에서, TLS 1.3의 키 교환은 또 다른 글에서 다룬다.)",
   sections: [
     {
       label: "HYBRID — 하이브리드 암호화",
@@ -340,85 +310,6 @@ openssl rsa -in private.key -pubout -out public.key  # 공개키 (.pub / .pem)
       ],
     },
     {
-      label: "OAUTH 2.0 — 권한 위임",
-      title: "비밀번호를 넘기지 않고 접근 권한만 준다",
-      blocks: [
-        {
-          kind: "prose",
-          paragraphs: [
-            "OAuth 2.0은 '인증'이 아니라 '권한 위임(authorization)' 프로토콜이다. 다루는 질문은 '이 앱이 내 무엇에 접근해도 되는가'이다. 사용자가 자기 비밀번호를 제3자 앱에 넘기지 않고도, 특정 자원에 대한 제한된 접근 권한(토큰)만 내준다.",
-          ],
-        },
-        {
-          kind: "keypoints",
-          items: [
-            { icon: UserCheck, title: "자원 소유자 (Resource Owner)", body: "데이터의 주인, 곧 사용자다. 접근을 허락(동의)하는 주체." },
-            { icon: Layers, title: "클라이언트 (Client)", body: "접근을 원하는 앱이다. 사용자를 대신해 제한된 권한만 받는다." },
-            { icon: ShieldCheck, title: "인가 서버 (Authorization Server)", body: "사용자를 인증하고 토큰을 발급한다. 자원 서버와 같은 서버일 수도 있다." },
-            { icon: Server, title: "자원 서버 (Resource Server)", body: "보호된 데이터를 갖고 있다. access token을 검증한 뒤 데이터를 내준다." },
-          ],
-        },
-        {
-          kind: "steps",
-          steps: [
-            { title: "인가 요청", body: "클라이언트가 사용자를 인가 서버로 보내 로그인과 접근 동의를 받는다." },
-            { title: "1회용 코드 발급", body: "사용자가 동의하면 인가 서버가 1회용 '인가 코드'와 함께 사용자를 클라이언트로 되돌려 보낸다." },
-            { title: "토큰 교환", body: "클라이언트가 그 코드와 자기 자격증명을 토큰 엔드포인트에 보내 access token으로 교환한다. 이 교환은 브라우저가 아닌 뒤채널에서 이뤄진다." },
-            { title: "자원 접근", body: "클라이언트가 access token을 자원 서버에 제시하고 데이터를 받는다." },
-          ],
-        },
-        {
-          kind: "keypoints",
-          items: [
-            { icon: EyeOff, title: "왜 토큰이 아니라 코드를 리다이렉트로 주나", body: "리다이렉트는 브라우저에 노출되는 경로다. 토큰을 직접 싣지 않고 1회용 코드만 싣고, 실제 토큰 교환은 뒤채널에서 한다." },
-            { icon: ShieldCheck, title: "PKCE", body: "코드 가로채기를 막는 code_verifier/challenge 쌍이다. 모바일·SPA 같은 공개 클라이언트에 특히 권장되며, 최근에는 사실상 모든 클라이언트에 권장된다. 구형 implicit 방식은 사용을 자제한다." },
-            { icon: KeyRound, title: "access token은 보통 bearer 토큰", body: "가진 사람이 곧 권한인 토큰이다. 그래서 수명을 짧게 두고 HTTPS로만 전송한다." },
-          ],
-        },
-        { kind: "mermaid", chart: koOauth },
-      ],
-    },
-    {
-      label: "OIDC — 로그인(인증)",
-      title: "OAuth 위에 인증(누구인가)을 더한다",
-      blocks: [
-        {
-          kind: "prose",
-          paragraphs: [
-            "OAuth 2.0의 access token에는 '무엇을 해도 되는가'만 있고 '누구인가'는 없다. 그래서 OAuth만으로는 로그인한 사용자가 누구인지 알 수 없다. OIDC(OpenID Connect)는 OAuth 2.0 위에 얹는 인증 계층으로, 이 빈칸을 채운다. '구글로 로그인' 같은 소셜 로그인이 바로 OIDC다.",
-            "동작은 OAuth의 Authorization Code 흐름을 그대로 쓴다. 인가 요청의 scope에 openid를 넣으면, 토큰 교환 때 access token과 함께 ID Token이 발급된다. 이 ID Token이 진짜 그 IdP에서 왔는지는 전자서명으로 검증한다 — IdP가 개인키로 서명하고, 클라이언트가 공개키로 검증한다.",
-          ],
-        },
-        {
-          kind: "keypoints",
-          items: [
-            { icon: BadgeCheck, title: "ID Token", body: "OIDC가 추가하는 핵심이다. JWT 형식이며 사용자 신원 클레임(sub 주체, iss 발급자, aud 대상, iat·exp 시각, nonce)을 담는다. 이것으로 '누가 로그인했는지'를 확인한다." },
-            { icon: Stamp, title: "서명 검증은 전자서명 그대로다", body: "IdP가 자기 개인키로 ID Token에 서명하고, 검증용 공개키는 공개된 주소(JWKS)에 올려둔다. 클라이언트는 그 공개키로 서명을 검증해 'IdP가 발급했고 변조되지 않았음'을 확인한다 — 개인키는 IdP만 갖고 있어 위조할 수 없다." },
-            { icon: Network, title: "openid 스코프로 켠다", body: "인가 요청의 scope에 openid를 넣으면 OIDC가 동작하고 ID Token이 함께 발급된다. 이름·이메일 같은 프로필은 ID Token이나 UserInfo 엔드포인트에서 가져온다." },
-            { icon: ShieldCheck, title: "토큰 역할을 섞지 않는다", body: "ID Token은 '인증(누구)', access token은 'API 접근(무엇)' 용도다. ID Token으로 API를 호출하거나 access token으로 신원을 판단하면 안 된다." },
-          ],
-        },
-        {
-          kind: "steps",
-          steps: [
-            { title: "서명 발급", body: "로그인 성공 후 IdP가 사용자 신원 클레임을 담은 ID Token을 만들고, 자기 개인키로 서명해 발급한다." },
-            { title: "공개키 공개 (JWKS)", body: "IdP는 검증용 공개키를 공개된 JWKS 주소에 게시한다. 클라이언트는 이를 받아 캐시해 둔다." },
-            { title: "서명 검증", body: "클라이언트가 JWKS 공개키로 ID Token의 서명을 검증한다. 통과하면 변조되지 않았고 그 IdP가 발급한 것이다." },
-            { title: "클레임 검증", body: "iss(발급자가 기대한 IdP인가), aud(내 클라이언트용인가), exp(만료 안 됐나), nonce(내가 보낸 값과 같나)를 확인한다." },
-          ],
-        },
-        {
-          kind: "list",
-          icon: Lightbulb,
-          tone: "muted",
-          items: [
-            "OAuth 2.0 = 인가: 이 앱이 무엇을 해도 되나 (access token).",
-            "OIDC = 인증: 이 사용자가 누구인가 (ID Token, JWT).",
-          ],
-        },
-      ],
-    },
-    {
       label: "SUMMARY — 한눈에",
       title: "목적에 따라 고른다",
       blocks: [
@@ -431,10 +322,13 @@ openssl rsa -in private.key -pubout -out public.key  # 공개키 (.pub / .pem)
             "무결성·위조 검사: 해시 — SHA-256(서명·파일 검증), HMAC(비밀키를 섞음, JWT), bcrypt·Argon2(비밀번호 저장).",
             "진위 증명: 전자서명 + CA — 개인키로 서명, 공개키로 검증.",
             "키 관리: KMS + 봉투 암호화 — 마스터 키는 KMS 밖으로 안 나가고, 데이터 키만 암호화해 저장.",
-            "권한 위임(무엇을 해도 되나): OAuth 2.0 — access token.",
-            "로그인·신원(누구인가): OIDC — ID Token(JWT).",
             "전송 포맷(보안 아님): 인코딩(Base64) — 되돌릴 수 있고 누구나 읽는다.",
           ],
+        },
+        {
+          kind: "link",
+          href: "/notes/oauth2-oidc-jwks",
+          label: "2편 →  OAuth 2.0 · OIDC · JWKS · SSRF — 로그인과 권한",
         },
       ],
     },
@@ -443,7 +337,7 @@ openssl rsa -in private.key -pubout -out public.key  # 공개키 (.pub / .pem)
 
 const en: NoteBody = {
   intro:
-    "Encryption and auth run through the backend everywhere — login, payments, token checks — yet symmetric, asymmetric, hashing, encoding, signatures, and tokens get mixed up constantly. This is the working set of concepts, from hybrid encryption to digital signatures, key management (KMS), OAuth 2.0, and OIDC, laid out in one flow from basics to depth. (TLS 1.3's key exchange is covered separately.)",
+    "Encryption runs through the backend everywhere — login, payments, token checks — yet symmetric, asymmetric, hashing, encoding, and signatures get mixed up constantly. This is the working set of concepts, from hybrid encryption to digital signatures and key management (KMS), laid out in one flow from basics to depth. (OAuth 2.0 and OIDC for login/authorization are in Part 2; TLS 1.3's key exchange is covered separately.)",
   sections: [
     {
       label: "HYBRID",
@@ -647,85 +541,6 @@ openssl rsa -in private.key -pubout -out public.key  # public key  (.pub / .pem)
       ],
     },
     {
-      label: "OAUTH 2.0",
-      title: "Grant access without handing over the password",
-      blocks: [
-        {
-          kind: "prose",
-          paragraphs: [
-            "OAuth 2.0 is an authorization protocol, not authentication. The question it answers is 'what may this app access on my behalf?'. Without handing a password to a third-party app, the user grants only a limited access token to specific resources.",
-          ],
-        },
-        {
-          kind: "keypoints",
-          items: [
-            { icon: UserCheck, title: "Resource owner", body: "The owner of the data — the user. The one who grants (consents to) access." },
-            { icon: Layers, title: "Client", body: "The app that wants access. It receives only limited permission on the user's behalf." },
-            { icon: ShieldCheck, title: "Authorization server", body: "Authenticates the user and issues tokens. It can be the same server as the resource server." },
-            { icon: Server, title: "Resource server", body: "Holds the protected data. It validates the access token before returning data." },
-          ],
-        },
-        {
-          kind: "steps",
-          steps: [
-            { title: "Authorization request", body: "The client sends the user to the authorization server to log in and approve access." },
-            { title: "Single-use code", body: "On consent, the authorization server returns the user to the client with a single-use authorization code." },
-            { title: "Token exchange", body: "The client sends that code plus its own credentials to the token endpoint to exchange for an access token. This exchange happens on a back channel, not in the browser." },
-            { title: "Resource access", body: "The client presents the access token to the resource server and gets the data." },
-          ],
-        },
-        {
-          kind: "keypoints",
-          items: [
-            { icon: EyeOff, title: "Why a code, not a token, in the redirect", body: "The redirect is visible to the browser. It carries only a single-use code rather than the token itself, and the real token exchange happens on the back channel." },
-            { icon: ShieldCheck, title: "PKCE", body: "A code_verifier/challenge pair that blocks code interception. It's especially recommended for public clients like mobile apps and SPAs, and lately for essentially all clients. Avoid the older implicit flow." },
-            { icon: KeyRound, title: "Access tokens are usually bearer tokens", body: "Whoever holds the token has the permission. So keep its lifetime short and send it only over HTTPS." },
-          ],
-        },
-        { kind: "mermaid", chart: enOauth },
-      ],
-    },
-    {
-      label: "OIDC",
-      title: "Adding identity (authentication) on top of OAuth",
-      blocks: [
-        {
-          kind: "prose",
-          paragraphs: [
-            "An OAuth 2.0 access token says what you may do, not who you are. So OAuth alone can't tell who logged in. OIDC (OpenID Connect) is an authentication layer on top of OAuth 2.0 that fills that gap. Social logins like 'Sign in with Google' are OIDC.",
-            "It runs on OAuth's Authorization Code flow. Put openid in the request's scope and the token exchange returns an ID Token alongside the access token. Whether that ID Token really came from the IdP is checked by its digital signature — the IdP signs with its private key, and the client verifies with the public key.",
-          ],
-        },
-        {
-          kind: "keypoints",
-          items: [
-            { icon: BadgeCheck, title: "ID Token", body: "The core thing OIDC adds. It's a JWT carrying identity claims (sub = subject, iss = issuer, aud = audience, iat/exp = timestamps, nonce). This is how you confirm who logged in." },
-            { icon: Stamp, title: "Verification is just a digital signature", body: "The IdP signs the ID Token with its private key and publishes the verification public key at a well-known address (JWKS). The client verifies the signature with that public key to confirm the IdP issued it and nothing was tampered with — only the IdP holds the private key, so it can't be forged." },
-            { icon: Network, title: "Turned on by the openid scope", body: "Include openid in the authorization request's scope and OIDC kicks in, issuing an ID Token alongside. Profile claims like name and email come from the ID Token or the UserInfo endpoint." },
-            { icon: ShieldCheck, title: "Don't mix the token roles", body: "The ID Token is for authentication (who), the access token for API access (what). Don't call APIs with an ID Token, or judge identity from an access token." },
-          ],
-        },
-        {
-          kind: "steps",
-          steps: [
-            { title: "Sign and issue", body: "After login, the IdP builds an ID Token with the user's identity claims and signs it with its private key." },
-            { title: "Publish the public key (JWKS)", body: "The IdP publishes the verification public key at a well-known JWKS address. The client fetches and caches it." },
-            { title: "Verify the signature", body: "The client verifies the ID Token's signature with the JWKS public key. If it passes, the token is untampered and was issued by that IdP." },
-            { title: "Check the claims", body: "Check iss (the expected issuer), aud (meant for this client), exp (not expired), and nonce (matches what the client sent)." },
-          ],
-        },
-        {
-          kind: "list",
-          icon: Lightbulb,
-          tone: "muted",
-          items: [
-            "OAuth 2.0 = authorization: what may this app do (access token).",
-            "OIDC = authentication: who is this user (ID Token, a JWT).",
-          ],
-        },
-      ],
-    },
-    {
       label: "SUMMARY",
       title: "Choose by purpose",
       blocks: [
@@ -738,10 +553,13 @@ openssl rsa -in private.key -pubout -out public.key  # public key  (.pub / .pem)
             "Integrity / tamper checks: hashing — SHA-256 (signatures, file checks), HMAC (mixes in a secret, JWT), bcrypt/Argon2 (password storage).",
             "Proof of authenticity: digital signature + CA — sign with the private key, verify with the public key.",
             "Key management: KMS + envelope encryption — the master key never leaves KMS; only data keys are stored encrypted.",
-            "Delegated access (what you may do): OAuth 2.0 — access token.",
-            "Login / identity (who you are): OIDC — ID Token (JWT).",
             "Transport format (not security): encoding (Base64) — reversible and readable by anyone.",
           ],
+        },
+        {
+          kind: "link",
+          href: "/en/notes/oauth2-oidc-jwks",
+          label: "Part 2 →  OAuth 2.0 · OIDC · JWKS · SSRF — login & authorization",
         },
       ],
     },

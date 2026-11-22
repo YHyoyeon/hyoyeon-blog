@@ -20,6 +20,19 @@ export const noteDesc = (n: NoteMeta, lang: Lang) => n.description[lang];
 
 const entries: NoteMeta[] = [
   {
+    slug: "oauth2-oidc-jwks",
+    title: {
+      ko: "OAuth 2.0 · OIDC · JWKS · SSRF — 로그인과 권한",
+      en: "OAuth 2.0, OIDC, JWKS & SSRF — Login and Authorization",
+    },
+    description: {
+      ko: "OAuth 2.0(권한 위임)부터 왜 OIDC가 생겼는지, ID Token 검증에 쓰는 JWKS, 그리고 그 과정에서 생기는 SSRF 취약점까지. 암호화 1편의 후속",
+      en: "From OAuth 2.0 (delegated access) to why OIDC emerged, the JWKS used to verify ID Tokens, and the SSRF vulnerability it introduces. A follow-up to the encryption post.",
+    },
+    category: "Info",
+    date: "2026-11-23",
+  },
+  {
     slug: "encryption-fundamentals",
     title: {
       ko: "암호화의 단계 — 핸드셰이크부터 전자서명까지",
