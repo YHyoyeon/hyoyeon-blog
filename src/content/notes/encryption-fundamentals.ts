@@ -117,7 +117,7 @@ const ko: NoteBody = {
           paragraphs: [
             "대칭키 암호화(AES)는 하나의 키로 잠그고 같은 키로 푼다. 빠르지만, 그 키를 상대에게 어떻게 안전하게 전달하느냐가 문제다.",
             "비대칭키 암호화(RSA)는 공개키·개인키 한 쌍을 쓴다. 공개키로 잠근 건 개인키로만 풀리고, 그 반대도 성립한다. 느리지만 '키 전달' 문제를 푼다.",
-            "그래서 둘을 합친다. 비대칭키로는 '대칭키 하나'만 안전하게 전달하고, 이후 실제 데이터는 빠른 대칭키로 주고받는다. 이것이 하이브리드 암호화이고, HTTPS 통신의 기본 구조다.",
+            "그래서 둘을 합친다. 비대칭키로는 '대칭키 하나'만 안전하게 전달하고, 이후 실제 데이터는 빠른 대칭키로 주고받는다. 이것이 하이브리드 암호화이고, HTTPS 통신의 기본 구조다. 다만 여기서 설명한 '대칭키를 암호화해 전송하는' 방식은 과거 RSA 키 교환에 해당한다. 최신 TLS 1.3은 대칭키를 전송하지 않고 양쪽이 각자 계산해 만드는데, 그 방식은 별도 글에서 다룬다.",
           ],
         },
         {
@@ -348,7 +348,7 @@ const en: NoteBody = {
           paragraphs: [
             "Symmetric encryption (AES) locks and unlocks with one shared key. It's fast, but the hard part is delivering that key to the other side safely.",
             "Asymmetric encryption (RSA) uses a public/private key pair. What the public key locks, only the private key opens, and vice versa. It's slow, but it solves the key-delivery problem.",
-            "So you combine them: use the asymmetric keys to deliver just one symmetric key safely, then send the actual data with the fast symmetric key. That's hybrid encryption, and it's the basic structure of HTTPS.",
+            "So you combine them: use the asymmetric keys to deliver just one symmetric key safely, then send the actual data with the fast symmetric key. That's hybrid encryption, and it's the basic structure of HTTPS. Note that the 'encrypt and send the symmetric key' model shown here is the older RSA key exchange; modern TLS 1.3 doesn't transport the key but has both sides compute it, which is covered in a separate post.",
           ],
         },
         {

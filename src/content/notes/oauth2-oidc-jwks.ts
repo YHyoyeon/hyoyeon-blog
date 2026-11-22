@@ -122,6 +122,7 @@ const ko: NoteBody = {
             { icon: EyeOff, title: "왜 토큰이 아니라 코드를 리다이렉트로 주나", body: "리다이렉트는 브라우저에 노출되는 경로다. 토큰을 직접 싣지 않고 1회용 코드만 싣고, 실제 토큰 교환은 뒤채널에서 한다." },
             { icon: ShieldCheck, title: "PKCE", body: "코드 가로채기를 막는 code_verifier/challenge 쌍이다(RFC 7636). 모바일·SPA 같은 공개 클라이언트에 특히 권장되며, 최근에는 사실상 모든 클라이언트에 권장된다. 구형 implicit 방식은 사용을 자제한다." },
             { icon: KeyRound, title: "access token은 보통 bearer 토큰", body: "가진 사람이 곧 권한인 토큰이다. 그래서 수명을 짧게 두고 HTTPS로만 전송한다." },
+            { icon: RefreshCw, title: "access token과 refresh token", body: "access token은 수명이 짧고, 만료되면 refresh token으로 새 access token을 재발급받는다. refresh token은 더 오래 살고 민감하므로 안전하게 보관하고 회전(rotation)한다." },
           ],
         },
         { kind: "mermaid", chart: koOauth },
@@ -240,6 +241,7 @@ const ko: NoteBody = {
           tone: "muted",
           items: [
             "OIDC에서는 iss·jwks_uri를 신뢰할 수 있는 고정 IdP로만 받고, JWKS를 가져오는 호스트를 허용 목록으로 제한하면 이 경로의 SSRF를 막는다.",
+            "AWS 메타데이터는 토큰이 필요한 IMDSv2로 바꾸면, 단순 GET 기반 SSRF로는 자격증명을 빼내기 어려워진다.",
           ],
         },
         { kind: "mermaid", chart: koSsrf },
@@ -308,6 +310,7 @@ const en: NoteBody = {
             { icon: EyeOff, title: "Why a code, not a token, in the redirect", body: "The redirect is visible to the browser. It carries only a single-use code rather than the token itself, and the real token exchange happens on the back channel." },
             { icon: ShieldCheck, title: "PKCE", body: "A code_verifier/challenge pair that blocks code interception (RFC 7636). It's especially recommended for public clients like mobile apps and SPAs, and lately for essentially all clients. Avoid the older implicit flow." },
             { icon: KeyRound, title: "Access tokens are usually bearer tokens", body: "Whoever holds the token has the permission. So keep its lifetime short and send it only over HTTPS." },
+            { icon: RefreshCw, title: "Access token and refresh token", body: "The access token is short-lived; when it expires, a refresh token gets a new one. The refresh token lives longer and is more sensitive, so store it safely and rotate it." },
           ],
         },
         { kind: "mermaid", chart: enOauth },
@@ -426,6 +429,7 @@ const en: NoteBody = {
           tone: "muted",
           items: [
             "In OIDC, accept iss and jwks_uri only from trusted, fixed IdPs and allowlist the hosts you fetch JWKS from — that closes the SSRF on this path.",
+            "Switching AWS metadata to IMDSv2 (which requires a session token) makes it much harder for a simple GET-based SSRF to pull credentials.",
           ],
         },
         { kind: "mermaid", chart: enSsrf },
