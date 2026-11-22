@@ -163,10 +163,21 @@ const ko: NoteBody = {
           kind: "keypoints",
           items: [
             { icon: ListChecks, title: "용어: 개인키(private) ≠ 비밀키(secret)", body: "공개키(public key)와 개인키(private key)는 비대칭키 한 쌍이고, 비밀키(secret key)는 대칭키다. 개인키를 '비밀키'라고 혼용해 부르는 사람이 많지만, 비밀키는 대칭키를 가리키는 다른 개념이므로 구분해서 써야 한다." },
+            { icon: Layers, title: "키 쌍은 수학적으로 한 번에 생성된다", body: "공개키와 개인키는 수학적으로 짝을 이뤄 한 번의 생성 명령으로 동시에 만들어진다. 둘은 서로 다른 파일로 저장되고 확장자도 다르다 — 예를 들어 개인키는 private.key, 공개키는 public.key(.pem·.pub 등)로 나뉜다." },
+            { icon: KeyRound, title: "잠근 키의 반대 키로만 풀린다", body: "공개키로 암호화하면 개인키로만 풀 수 있고, 개인키로 암호화(서명)하면 공개키로만 풀 수 있다. 한 키로 잠그면 반드시 짝이 되는 다른 키로만 열린다." },
             { icon: EyeOff, title: "공개키는 가로채여도 안전하다", body: "공개키로 잠근 건 개인키로만 풀린다. 그래서 공개키는 숨길 필요가 없고, 서버는 개인키가 아니라 공개키를 보낸다." },
             { icon: KeyRound, title: "개인키를 보내면 안 되는 이유", body: "개인키를 보내면 중간에서 가로챈 공격자도 대칭키를 복호화하거나 위조할 수 있다. 개인키는 서버 밖으로 절대 나가지 않는다." },
             { icon: Layers, title: "비대칭은 키 전달용, 대칭은 본 통신용", body: "비대칭 연산은 느려 대량 데이터엔 부담이다. 대칭키 하나를 전달하는 데만 쓰고, 본 통신은 빠른 대칭키가 맡는다." },
+            { icon: RefreshCw, title: "대칭키는 세션이 끝나면 폐기된다", body: "핸드셰이크로 만든 대칭키는 그 연결(세션) 동안만 쓰는 임시 키다. 통신이 끝나면 폐기되고, 다음 접속 때는 새 대칭키를 만든다. 매번 새로 만들기 때문에 한 세션의 키가 새어도 다른 세션에 미치는 영향이 제한된다." },
           ],
+        },
+        {
+          kind: "code",
+          code: `# 한 번의 생성으로 짝이 되는 두 파일이 동시에 만들어진다 (RSA 예, OpenSSL)
+openssl genrsa -out private.key 2048                 # 개인키 (.key / .pem)
+openssl rsa -in private.key -pubout -out public.key  # 공개키 (.pub / .pem)
+
+# 공개키로 암호화 → 개인키로만 복호화  (개인키로 서명 → 공개키로 검증, 반대도 성립)`,
         },
         { kind: "mermaid", chart: koHandshake },
       ],
@@ -301,7 +312,7 @@ const ko: NoteBody = {
           items: [
             { icon: Stamp, title: "전자서명 = 해시 + 비대칭키", body: "보내는 쪽이 문서의 해시를 자기 개인키로 서명해 붙인다. 받는 쪽은 공개키로 검증해 '작성자가 맞고 중간에 바뀌지 않았음'을 확인한다. 암호화와 방향이 반대다 — 개인키로 서명하고 공개키로 검증한다." },
             { icon: BadgeCheck, title: "CA (인증기관)", body: "서버의 공개키와 도메인 정보에 CA가 자기 개인키로 서명한 것이 인증서다. 브라우저는 미리 내장된 CA의 공개키로 그 서명을 검증해, 공개키가 진짜 그 도메인의 것인지 보증받는다." },
-            { icon: KeyRound, title: "개인키는 인증서에 들어가지 않는다", body: "공개키는 게시판이 아니라 인증서에 담겨 접속할 때 전달된다. 개인키는 인증서에 절대 넣지 않으며, 유출되면 인증서를 즉시 폐기하고 재발급한다." },
+            { icon: KeyRound, title: "SSL 인증서에는 공개키만 들어간다", body: "SSL/TLS 인증서(.crt)에 담기는 건 공개키뿐이다. 공개키는 게시판이 아니라 인증서에 담겨 접속할 때 전달되고, 개인키는 인증서에 절대 넣지 않는다 — 유출되면 인증서를 즉시 폐기하고 재발급한다." },
           ],
         },
         { kind: "mermaid", chart: koCa },
@@ -448,10 +459,21 @@ const en: NoteBody = {
           kind: "keypoints",
           items: [
             { icon: ListChecks, title: "Terminology: private key ≠ secret key", body: "The public key and private key are the asymmetric pair; the secret key is the symmetric key. Many people loosely call the private key a 'secret key', but 'secret key' means the symmetric key — keep the two distinct." },
+            { icon: Layers, title: "The key pair is generated together, mathematically", body: "The public and private keys are a mathematical pair, created at once by a single generate command. They're saved as two separate files with different extensions — e.g. the private key as private.key and the public key as public.key (.pem, .pub, etc.)." },
+            { icon: KeyRound, title: "Only the opposite key opens what one key locked", body: "Encrypt with the public key and only the private key decrypts; encrypt (sign) with the private key and only the public key opens it. Whatever one key locks, only its paired key unlocks." },
             { icon: EyeOff, title: "The public key is safe to intercept", body: "What the public key locks only the private key opens. So there's no need to hide it, and the server sends the public key — not the private one." },
             { icon: KeyRound, title: "Why the private key must not be sent", body: "If the private key were sent, an attacker who intercepts it could also decrypt or forge the symmetric key. The private key never leaves the server." },
             { icon: Layers, title: "Asymmetric for key delivery, symmetric for the traffic", body: "Asymmetric math is slow and costly for bulk data. It's used only to deliver one symmetric key; the fast symmetric key carries the actual traffic." },
+            { icon: RefreshCw, title: "The symmetric key is discarded when the session ends", body: "The symmetric key from the handshake is temporary — used only for that connection (session). When the session ends it's discarded, and a fresh symmetric key is created on the next connection. Because a new one is made each time, a leak of one session's key has limited impact on other sessions." },
           ],
+        },
+        {
+          kind: "code",
+          code: `# one command creates the matched pair as two files (RSA example, OpenSSL)
+openssl genrsa -out private.key 2048                 # private key (.key / .pem)
+openssl rsa -in private.key -pubout -out public.key  # public key  (.pub / .pem)
+
+# encrypt with the public key → only the private key decrypts (and vice versa)`,
         },
         { kind: "mermaid", chart: enHandshake },
       ],
@@ -586,7 +608,7 @@ const en: NoteBody = {
           items: [
             { icon: Stamp, title: "Digital signature = hash + asymmetric key", body: "The sender signs the document's hash with their private key and attaches it. The receiver verifies with the public key, confirming the author is genuine and nothing changed. It's the reverse direction of encryption — sign with the private key, verify with the public key." },
             { icon: BadgeCheck, title: "CA (certificate authority)", body: "A certificate is the server's public key and domain, signed by a CA with the CA's private key. The browser verifies that signature with a built-in CA public key, getting assurance that the key really belongs to that domain." },
-            { icon: KeyRound, title: "The private key never goes into the certificate", body: "The public key is delivered inside the certificate at connect time, not posted on a board. The private key is never placed in the certificate; if it leaks, the certificate is revoked and reissued at once." },
+            { icon: KeyRound, title: "An SSL certificate contains only the public key", body: "An SSL/TLS certificate (.crt) carries the public key only. It's delivered inside the certificate at connect time, not posted on a board, and the private key is never placed in it — if it leaks, the certificate is revoked and reissued at once." },
           ],
         },
         { kind: "mermaid", chart: enCa },
