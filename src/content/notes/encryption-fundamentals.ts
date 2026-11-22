@@ -162,6 +162,7 @@ const ko: NoteBody = {
         {
           kind: "keypoints",
           items: [
+            { icon: ListChecks, title: "용어: 개인키(private) ≠ 비밀키(secret)", body: "공개키(public key)와 개인키(private key)는 비대칭키 한 쌍이고, 비밀키(secret key)는 대칭키다. 개인키를 '비밀키'라고 혼용해 부르는 사람이 많지만, 비밀키는 대칭키를 가리키는 다른 개념이므로 구분해서 써야 한다." },
             { icon: EyeOff, title: "공개키는 가로채여도 안전하다", body: "공개키로 잠근 건 개인키로만 풀린다. 그래서 공개키는 숨길 필요가 없고, 서버는 개인키가 아니라 공개키를 보낸다." },
             { icon: KeyRound, title: "개인키를 보내면 안 되는 이유", body: "개인키를 보내면 중간에서 가로챈 공격자도 대칭키를 복호화하거나 위조할 수 있다. 개인키는 서버 밖으로 절대 나가지 않는다." },
             { icon: Layers, title: "비대칭은 키 전달용, 대칭은 본 통신용", body: "비대칭 연산은 느려 대량 데이터엔 부담이다. 대칭키 하나를 전달하는 데만 쓰고, 본 통신은 빠른 대칭키가 맡는다." },
@@ -446,6 +447,7 @@ const en: NoteBody = {
         {
           kind: "keypoints",
           items: [
+            { icon: ListChecks, title: "Terminology: private key ≠ secret key", body: "The public key and private key are the asymmetric pair; the secret key is the symmetric key. Many people loosely call the private key a 'secret key', but 'secret key' means the symmetric key — keep the two distinct." },
             { icon: EyeOff, title: "The public key is safe to intercept", body: "What the public key locks only the private key opens. So there's no need to hide it, and the server sends the public key — not the private one." },
             { icon: KeyRound, title: "Why the private key must not be sent", body: "If the private key were sent, an attacker who intercepts it could also decrypt or forge the symmetric key. The private key never leaves the server." },
             { icon: Layers, title: "Asymmetric for key delivery, symmetric for the traffic", body: "Asymmetric math is slow and costly for bulk data. It's used only to deliver one symmetric key; the fast symmetric key carries the actual traffic." },
